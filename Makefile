@@ -29,7 +29,7 @@ libclientserver.a: connection.o server.o
 	ranlib libclientserver.a
 
 restructure: 
-	mkdir -p bin; mv yourfile.txt $_; mv *.o bin; mv *.a bin
+	mkdir -p bin; mv *.o bin; mv *.a bin
 
 # Phony targets
 .PHONY: all clean
