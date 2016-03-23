@@ -13,11 +13,13 @@ CPPFLAGS =  -std=c++11
 CXXFLAGS =  -O2 -Wall -Wextra -pedantic-errors -Wold-style-cast 
 CXXFLAGS += -std=c++11 
 CXXFLAGS += -g
+VPATH		 += src
+OUT_DIR  += bin
 #CXXFLAGS =  -stdlib=libc++
 #CPPFLAGS =  -stdlib=libc++
 #CXXFLAGS += -stdlib=libc++
 
-all: libclientserver.a
+all: libclientserver.a restructure
 
 # Create the library; ranlib is for Darwin (OS X) and maybe other systems.
 # Doesn't seem to do any damage on other systems.
@@ -26,12 +28,15 @@ libclientserver.a: connection.o server.o
 	ar rv libclientserver.a  connection.o server.o
 	ranlib libclientserver.a
 
+restructure: 
+	mv *.o bin; mv *.a bin
+
 # Phony targets
 .PHONY: all clean
 
 # Standard clean
 clean:
-	rm -f *.o libclientserver.a
+	rm -f bin/*.o bin/libclientserver.a
 
 # Generate dependencies in *.d files
 %.d: %.cc
@@ -41,5 +46,8 @@ clean:
          rm -f $@.$$$$
 
 # Include the *.d files
+ 
+#SRC_DIR = src
+#SRC = $(SRC_DIR)/$(wildcard *.cc)
 SRC = $(wildcard *.cc)
 include $(SRC:.cc=.d)
