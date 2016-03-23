@@ -8,15 +8,6 @@
 #include "message.h"
 
 /**
- * Container for message parameters
- */
-struct MessageParameter {
-    int commandType;
-    int numericValue;
-    std::string textValue;
-};
-
-/**
  * Parser for reading messages on a connection.
  */
 class MessageHandler {

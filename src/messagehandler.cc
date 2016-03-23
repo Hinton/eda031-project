@@ -1,5 +1,4 @@
 #include "messagehandler.h"
-#include <vector>
 
 using namespace std;
 
@@ -7,20 +6,20 @@ MessageHandler::MessageHandler() {
 
 }
 
+// TODO: Throw errors on parsing issues?
 Message MessageHandler::parseNext(const std::shared_ptr<Connection> &connection) {
 
     // Get the command;
     int command = connection->read();
 
-    std::cout << command << endl;
+    std::cout << "COMMAND: " << command << endl;
 
     vector<MessageParameter> parameters;
 
-    //int type = connection->read();
-    //cout << type << endl;
-
     // Loop until command is done.
-    unsigned char type = connection->read();
+    int type = connection->read();
+    cout << type << endl;
+
     while (type != Protocol::COM_END) {
         MessageParameter param;
         param.commandType = type;
@@ -33,22 +32,18 @@ Message MessageHandler::parseNext(const std::shared_ptr<Connection> &connection)
             cerr << "UNKNOWN PARAMETER TYPE " << param.commandType << endl;
         }
 
+        // TODO: Handle ans? as they are only 1 char long they dont have any value?
+
         cout << "PARAM: " << endl;
         cout << param.commandType << " " << param.numericValue << " " << param.textValue << endl;
 
         parameters.push_back(param);
 
         type = connection->read();
+        cout << type << endl;
     }
 
-    //parameters.push_back(MessageParameter::)
-
-
-
-    Message message;
-
-    return message;
-
+    return Message(command, parameters);
 }
 
 /**
@@ -63,6 +58,9 @@ int MessageHandler::read_number(const std::shared_ptr<Connection> &connection) {
     return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
 }
 
+/**
+ * [ N (length), char1, char2, ...  charN ]
+ */
 std::string MessageHandler::read_string(const std::shared_ptr<Connection> &connection) {
     // How long is the string?
     int length = read_number(connection);

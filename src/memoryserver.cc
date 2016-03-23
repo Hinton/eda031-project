@@ -6,17 +6,6 @@
 using namespace std;
 
 /*
- * Read an integer from a client.
- */
-int readNumber(const shared_ptr<Connection> &conn) {
-    unsigned char byte1 = conn->read();
-    unsigned char byte2 = conn->read();
-    unsigned char byte3 = conn->read();
-    unsigned char byte4 = conn->read();
-    return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-}
-
-/*
  * Send a string to a client.
  */
 void writeString(const shared_ptr<Connection> &conn, const string &s) {
@@ -51,21 +40,20 @@ void MemoryServer::run() {
         try {
 
             Message message = parser.parseNext(conn);
+            cout << "123";
 
-            cout << "Got message" << endl;
-
-            /*
-            int nbr = readNumber(conn);
-            string result;
-            if (nbr > 0) {
-                result = "positive";
-            } else if (nbr == 0) {
-                result = "zero";
-            } else {
-                result = "negative";
+            switch (message.getCommand()) {
+                case Protocol::COM_LIST_NG:
+                    cout << "LIST NEWGROOPS";
+                    break;
+                default:
+                    cerr << "UNKNOWN COMMAND";
+                    break;
             }
-            writeString(conn, result);
-            */
+
+            // FIXME: Remove! added due to console not showing for some reason
+            break;
+
         } catch (ConnectionClosedException &) {
             server.deregisterConnection(conn);
             cout << "Client closed connection" << endl;
