@@ -19,7 +19,7 @@ OUT_DIR  += bin
 #CPPFLAGS =  -stdlib=libc++
 #CXXFLAGS += -stdlib=libc++
 
-all: libclientserver.a client restructure
+all: libclientserver.a client database-test restructure
 
 # Create the library; ranlib is for Darwin (OS X) and maybe other systems.
 # Doesn't seem to do any damage on other systems.
@@ -30,15 +30,17 @@ libclientserver.a: connection.o server.o
 
 client: connection.o
 
+database-test: 
+
+restructure: 
+	mkdir -p bin; rm bin/*; mv *.o bin/; mv *.a bin/; mv client bin/;
+
 # Phony targets
 .PHONY: all clean restructure
 
 # Standard clean
 clean:
 	rm -f bin/*.o bin/libclientserver.a
-
-restructure: 
-	rm bin/*; mv *.o bin/; mv *.a bin/; mv client bin/;
 
 # Generate dependencies in *.d files
 %.d: %.cc
