@@ -3,7 +3,8 @@
 #include "message.h"
 #include "messagehandler.h"
 
-#include <cctype> // for isdigit()
+#include <cctype> // for isdigit
+#include <iterator> // for istream_iterator & back_inserter
 #include <string>
 #include <memory>
 #include <iostream>
@@ -49,7 +50,9 @@ int findGroupNbr(const Connection& con, const string& id) {
 	} else {
 		vector<pair<int, string>> groups = listNewsgroups(con);
 		auto res = find_if(groups.begin(), groups.end(), [id] (pair<int, string>& p) { return p.second == id; });
-		group_nbr = (*res).first;
+		if (res != groups.end()) {
+			group_nbr = (*res).first;
+		}
 	}
 	return group_nbr;
 }
@@ -104,9 +107,14 @@ string createArticle(const Connection& con, const int group_nbr, const string& t
 	// send create art msg
 	// recieve reply
 	// return result
-	cout << "createArticle called with: " << group_nbr << " " << title << " " << author << " " << text << endl;
+	cout << "createArticle called with, nbr: " << group_nbr << ", title: " << title << ", author: " << author << ", text: " << text << endl;
 	return "createArticleReply";
 }
+
+/**
+ * Deletes the article in newsgroup group_nbr and title id.
+ * Returns status as string
+ */
 string deleteArticle(const Connection& con, const int group_nbr, const string& id) {
 	// can only delete an article when called with a article number NOT with article name
 	// TODO Fix this?
@@ -123,7 +131,10 @@ string deleteArticle(const Connection& con, const int group_nbr, const string& i
 	cout << "deleteArticle called with " << group_nbr << " " <<  art_nbr << endl;
 	return "deleterticleReply";
 }
-
+/**
+ * Fetches an article witht the title 'title',from newsgroup group_nbr.
+ * Returns the author, title and text as three elements in a vector
+ */
 vector<string> getArticle(const Connection& con, const int group_nbr, const string& title) {
 	con.isConnected(); // To remove unused warnings
 	cout << "getArticle called wth: " << group_nbr << " " << title << endl;
@@ -135,32 +146,40 @@ void cmd_err(const string& err_msg) {
 }
 
 void printHelp(ostream &o) {
-	o << "help called" << endl;
+	o << "----Newsgroup application----" << endl;
+	o << "The application accepts a command followed by zero or more parameters." << endl;
+	o << "Parameters that contain spaces needs to be enclosed in quotation marks, e.g. \"text with space\"." << endl;
+	o << "[ x | y ] means either x or y." << endl;
+	o << "Commands : Explanation" << endl;
+	o << "list : Lists the available newsgroups." << endl;
+	o << "list [Newsgroup name | Newsgroup number] : Lists the articles in the specified newsgroup." << endl;
+	o << "create [Newsgroup name] : Creates a newsgroup with the specified name." << endl;
+	o << "create [Article name] [Article author] [Article text] : Creates an article ine the previously listed newsgroup" << endl;
+	o << "delete_grp [Newsgroup name | Newsgroup number] : Deletes the specified newsgroup." <<  endl;
+	o << "delete_art [Article number] : Deletes the specified article from the previously listed newsgroup." << endl;
+	o << "read [Article number] : Views the specified article from the previously listed newsgroup." << endl;
 }
 
 /**
  * Utility for main method. Returns the words separated by space in the string line.
- * Text enclosed in citation mark (") are regarded as one word.
+ * Text enclosed in citation mark (") is regarded as one word.
  * Returns an empty vector if line was malformed
  */
 vector<string> getWords(const string& line) {
 	istringstream is(line);
-	string word;	
+	string part;	
 	vector<string> v;
-	while (getline(is, word, ' ')) {
-		if (word[0] == '"') {
-			string tmp(word.begin()+1, word.end());
-			tmp += " ";
-			if(getline(is, word, '"')) {
-				v.push_back(tmp += word);
-			} else { 
-				return vector<string>();
-			}
-		} else {
+	while (getline(is, part, '"')) { // To " or EOF
+		istringstream words(part);
+		string word;
+		while(words >> word) {
 			v.push_back(word);
 		}
+		if(getline(is,part, '"')) {
+			v.push_back(part);
+		}
 	}
-	return v;
+ 	return v;
 }
 
 int main(int argc, char* argv[]) {
@@ -181,8 +200,8 @@ int main(int argc, char* argv[]) {
 		port = def_port;
 	} else {
 		cerr << "Wrong number of arguments. Usage:"<< endl;
-		cerr << "client (uses host=localhost and port=1234)" << endl;
 		cerr << "client <host> <port>" << endl;
+		cerr << "client (uses host=localhost and port=1234)" << endl;
 		return 1;
 	}
 	cout << "Connecting to: " << host << "@" << port << endl;
@@ -202,7 +221,8 @@ int main(int argc, char* argv[]) {
 	while(getline(cin, line)) {
 		vector<string> words = getWords(line);
 		if (words.size() == 0) {
-			cerr << "Unrecognized command. See help section";
+			cerr << "Unrecognized command. See help section" << endl;
+			cout << "news>";
 			continue;
 		}
 		string cmd = words[0];
@@ -229,12 +249,12 @@ int main(int argc, char* argv[]) {
 		} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
 			string result = createArticle(con, current_group, args[0], args[1], args[2]);
 			cout << result << endl;
-		} else if (cmd == "delete" && args.size() == 1 && is_in_group) { // delete article in group
+		} else if (cmd == "delete_art" && args.size() == 1 && is_in_group) { // delete article in group
 			string result = deleteArticle(con, current_group, args[0]);
 			cout << result << endl;
-		} else if(cmd == "delete" && args.size() == 1 && !is_in_group) { // delete newsgroup
+		} else if(cmd == "delete_grp" && args.size() == 1) { // delete newsgroup
 			string result = deleteNewsgroup(con, args[0]);
-				cout << result << endl;
+			cout << result << endl;
 		} else if (cmd == "read" && args.size() == 1 && is_in_group) { // read article in latest_group
 			vector<string> result = getArticle(con, current_group, args[0]);
 			cout << result[0] << "\t From: " << result[1] << endl;
@@ -244,7 +264,7 @@ int main(int argc, char* argv[]) {
 		} else if (cmd == "exit") {
 			return 0;
 		} else {
-			cmd_err("No such command or invalid use of command. Write \"help\"");
+			cmd_err("Unrecognized command. See help section");
 		}
 		cout << "news>";
 	}
