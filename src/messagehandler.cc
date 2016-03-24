@@ -7,21 +7,21 @@ MessageHandler::MessageHandler() {
 }
 
 // TODO: Throw errors on parsing issues?
-Request MessageHandler::parse_next(const std::shared_ptr<Connection> &connection) {
+Command MessageHandler::parse_next(const std::shared_ptr<Connection> &connection) {
 
     // Get the command;
     int command = connection->read();
 
     std::cout << "COMMAND: " << command << endl;
 
-    vector<RequestParam> parameters;
+    vector<CommandParam> parameters;
 
     // Loop until command is done.
     int type = connection->read();
     cout << type << endl;
 
     while (type != Protocol::COM_END) {
-        RequestParam param;
+        CommandParam param;
         param.requestType = type;
 
         if (type == Protocol::PAR_NUM) {
@@ -43,7 +43,7 @@ Request MessageHandler::parse_next(const std::shared_ptr<Connection> &connection
         cout << type << endl;
     }
 
-    return Request(command, parameters);
+    return Command(command, parameters);
 }
 
 /**

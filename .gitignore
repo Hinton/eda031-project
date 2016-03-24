@@ -32,3 +32,4 @@ bin
 CMakeLists.txt
 .idea
 server
+client.dSYM

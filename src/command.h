@@ -7,22 +7,22 @@
 /**
  * Container for message parameters
  */
-struct RequestParam {
+struct CommandParam {
     int requestType;
     int numericValue = 0;
     std::string textValue = "";
 };
 
-class Request {
+class Command {
 public:
-    Request(int command, std::vector<RequestParam> parameters);
+    Command(int command, std::vector<CommandParam> parameters);
 
     int getCommand();
-    std::vector<RequestParam> getParameters();
+    std::vector<CommandParam> getParameters();
 
 private:
     int command;
-    std::vector<RequestParam> parameters;
+    std::vector<CommandParam> parameters;
 };
 
 
