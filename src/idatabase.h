@@ -13,14 +13,16 @@ public:
   // http://www.geeksforgeeks.org/pure-virtual-destructor-c/
   virtual ~IDatabase() {};
 
-  virtual std::vector<std::shared_ptr<INewsgroup>> getNewsgroups();
-  virtual std::shared_ptr<INewsgroup> getNewsgroup(const int& id);
-  virtual std::shared_ptr<INewsgroup> addNewsgroup(const int& id, const std::string &title);
+  virtual std::vector<std::shared_ptr<INewsgroup>> get_newsgroups();
+  virtual std::shared_ptr<INewsgroup> get_newsgroup(const int& id);
+  virtual std::shared_ptr<INewsgroup> add_newsgroup(const int& id, const std::string &title);
+  virtual bool remove_newsgroup();
 
-  virtual std::vector<std::shared_ptr<IArticle>> getArticles(const int& newsgroup_id);
-  virtual std::shared_ptr<IArticle> getArticle(const int& id);
-  virtual std::shared_ptr<IArticle> addArticle(const int& id, const std::string &title, 
+  virtual std::vector<std::shared_ptr<IArticle>> get_articles(const int& newsgroup_id);
+  virtual std::shared_ptr<IArticle> get_article(const int& id);
+  virtual std::shared_ptr<IArticle> add_article(const int& id, const std::string &title, 
     const std::string &author, const std::String &text);
+  virtual bool remove_article(const int& id);
 
 protected:
   IDatabase() {};

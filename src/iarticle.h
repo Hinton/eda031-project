@@ -8,19 +8,17 @@ class IArticle
 public:
   virtual ~IArticle() {};
 
-  virtual int getId();
+  virtual int get_id();
   //virtual void setId(const int &id);
 
-  virtual string getTitle();
-  virtual void setTitle(const std::string &title);
+  virtual string get_title();
+  virtual void set_title(const std::string &title);
 
-  virtual string getAuthor();
-  virtual void setAuthor(const std::string &author);
+  virtual string get_author();
+  virtual void set_author(const std::string &author);
 
-  virtual string getText();
-  virtual void setText(const std::string &text);
-
-  virtual void remove();
+  virtual string get_text();
+  virtual void set_text(const std::string &text);
 
 protected:
   IArticle() {};

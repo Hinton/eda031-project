@@ -11,10 +11,8 @@ public:
   virtual int getId();
   //virtual void setId(const int &id);
 
-  virtual string getTitle();
-  virtual void setTitle(const std::string &title);
-
-  virtual void remove();
+  virtual string get_title();
+  virtual void set_title(const std::string &title);
 
 protected:
   INewsgroup() {};
