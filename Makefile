@@ -19,7 +19,7 @@ OUT_DIR  += bin
 #CPPFLAGS =  -stdlib=libc++
 #CXXFLAGS += -stdlib=libc++
 
-all: libclientserver.a server client database-test restructure
+all: libclientserver.a server client restructure
 
 # Create the library; ranlib is for Darwin (OS X) and maybe other systems.
 # Doesn't seem to do any damage on other systems.
