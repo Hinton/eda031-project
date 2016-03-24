@@ -35,6 +35,7 @@ void Message::send(const shared_ptr<Connection> &connection) {
                 break;
             case Protocol::PAR_STRING:
                 connection->write(Protocol::PAR_STRING);
+                write_string(connection, p.textValue);
                 break;
             case Protocol::ANS_ACK:
                 connection->write(Protocol::ANS_ACK);
@@ -52,7 +53,7 @@ void Message::send(const shared_ptr<Connection> &connection) {
     // Is a command
     if (command <= Protocol::COM_END) {
         connection->write(Protocol::COM_END);
-    } else if (command >= Protocol::ANS_LIST_NG && command <= Protocol::ANS_NAK) {
+    } else {
         connection->write(Protocol::ANS_END);
     }
 
@@ -62,8 +63,6 @@ void Message::send(const shared_ptr<Connection> &connection) {
  * Send an integer to the server as four bytes.
  */
 void Message::write_number(const std::shared_ptr<Connection> &connection, int value) {
-
-    // Write the number
     connection->write((value >> 24) & 0xFF);
     connection->write((value >> 16) & 0xFF);
     connection->write((value >> 8)	 & 0xFF);
@@ -71,11 +70,9 @@ void Message::write_number(const std::shared_ptr<Connection> &connection, int va
 }
 
 void Message::write_string(const shared_ptr<Connection>& conn, string s) {
-    write_number(conn, s.length());
+    write_number(conn, static_cast<int>(s.length()));
 
     for (char c : s) {
         conn->write(c);
     }
-
-    conn->write('$');
 }

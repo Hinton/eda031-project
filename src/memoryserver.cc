@@ -50,8 +50,20 @@ void MemoryServer::run() {
 
                 MessageParam p1;
                 p1.requestType = Protocol::PAR_NUM;
-                p1.numericValue = 0;
+                p1.numericValue = 1;
                 params.push_back(p1);
+
+                MessageParam p2;
+                p2.requestType = Protocol::PAR_NUM;
+                p2.numericValue = 1;
+                params.push_back(p2);
+
+                MessageParam p3;
+                p3.requestType = Protocol::PAR_STRING;
+                p3.textValue = "Test group";
+                params.push_back(p3);
+
+
 
                 Message response(Protocol::ANS_LIST_NG, params);
                 response.send(conn);
@@ -76,7 +88,7 @@ void MemoryServer::run() {
 
 
             // FIXME: Remove! added due to console not showing for some reason
-            break;
+            //break;
 
         } catch (ConnectionClosedException &) {
             server.deregisterConnection(conn);
