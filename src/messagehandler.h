@@ -17,7 +17,7 @@ public:
     /**
      * Parse the next message on the connection.
      */
-    Message parseNext(const std::shared_ptr<Connection> &connection);
+    Message parse_next(const std::shared_ptr<Connection> &connection);
 private:
     int read_number(const std::shared_ptr<Connection> &connection);
     std::string read_string(const std::shared_ptr<Connection> &connection);

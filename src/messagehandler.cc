@@ -7,7 +7,7 @@ MessageHandler::MessageHandler() {
 }
 
 // TODO: Throw errors on parsing issues?
-Message MessageHandler::parseNext(const std::shared_ptr<Connection> &connection) {
+Message MessageHandler::parse_next(const std::shared_ptr<Connection> &connection) {
 
     // Get the command;
     int command = connection->read();
