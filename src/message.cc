@@ -41,7 +41,7 @@ void Message::send(const shared_ptr<Connection> &connection) {
                 break;
             case Protocol::ANS_NAK:
                 connection->write(Protocol::ANS_NAK);
-
+                connection->write(p.numericValue);
                 // connection->write(Protocol::ERR_NG_DOES_NOT_EXIST);
                 // TODO: Write error message!
                 break;

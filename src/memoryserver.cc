@@ -56,6 +56,18 @@ void MemoryServer::run() {
                 Message response(Protocol::ANS_LIST_NG, params);
                 response.send(conn);
 
+            } else if (cmd == Protocol::COM_CREATE_NG) {
+
+                vector<MessageParam> params;
+
+                MessageParam p1;
+                p1.requestType = Protocol::ANS_NAK;
+                p1.numericValue = Protocol::ERR_NG_ALREADY_EXISTS;
+                params.push_back(p1);
+
+                Message response(Protocol::ANS_CREATE_NG, params);
+                response.send(conn);
+
             } else {
                 cerr << "UNKNOWN COMMAND";
                 throw ConnectionClosedException();
