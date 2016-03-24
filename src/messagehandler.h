@@ -5,7 +5,7 @@
 #include <memory>
 #include "protocol.h"
 #include "connection.h"
-#include "response.h"
+#include "request.h"
 
 /**
  * Parser for reading messages on a connection.
@@ -17,7 +17,7 @@ public:
     /**
      * Parse the next message on the connection.
      */
-    Response parse_next(const std::shared_ptr<Connection> &connection);
+    Request parse_next(const std::shared_ptr<Connection> &connection);
 private:
     int read_number(const std::shared_ptr<Connection> &connection);
     std::string read_string(const std::shared_ptr<Connection> &connection);
