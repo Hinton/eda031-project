@@ -202,7 +202,7 @@ int main(int argc, char* argv[]) {
 	while(getline(cin, line)) {
 		vector<string> words = getWords(line);
 		if (words.size() == 0) {
-			cerr << "Unrecognized command. See help section"
+			cerr << "Unrecognized command. See help section";
 			continue;
 		}
 		string cmd = words[0];
