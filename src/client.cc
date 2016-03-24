@@ -1,6 +1,6 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
-#include "command.h"
+#include "message.h"
 #include "messagehandler.h"
 
 #include <cctype> // for isdigit

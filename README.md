@@ -5,6 +5,6 @@
   - Interface (Header files)
   - In-memory implementation
   - SQLite implementation
- - Response class
+ - Message class
  - Server
  - Client

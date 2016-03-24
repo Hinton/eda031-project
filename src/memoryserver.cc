@@ -2,6 +2,7 @@
 #include "memoryserver.h"
 #include "connection.h"
 #include "connectionclosedexception.h"
+#include "message.h"
 
 using namespace std;
 
@@ -39,17 +40,28 @@ void MemoryServer::run() {
 
         try {
 
-            Command command = parser.parse_next(conn);
+            Message message = parser.parse_next(conn);
             cout << "123";
 
-            switch (command.getCommand()) {
-                case Protocol::COM_LIST_NG:
-                    cout << "LIST NEWGROOPS";
-                    break;
-                default:
-                    cerr << "UNKNOWN COMMAND";
-                    break;
+            int cmd = message.getType();
+            if (cmd == Protocol::COM_LIST_NG) {
+
+                vector<MessageParam> params;
+
+                MessageParam p1;
+                p1.requestType = Protocol::PAR_NUM;
+                p1.numericValue = 0;
+                params.push_back(p1);
+
+                Message response(Protocol::ANS_LIST_NG, params);
+                response.send(conn);
+
+            } else {
+                cerr << "UNKNOWN COMMAND";
+                throw ConnectionClosedException();
             }
+
+
 
             // FIXME: Remove! added due to console not showing for some reason
             break;
