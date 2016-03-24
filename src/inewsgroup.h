@@ -8,7 +8,7 @@ class INewsgroup
 public:
   virtual ~INewsgroup() {};
 
-  virtual int getId();
+  virtual int get_id();
   //virtual void setId(const int &id);
 
   virtual string get_title();
