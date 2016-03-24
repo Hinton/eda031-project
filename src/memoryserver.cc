@@ -39,10 +39,10 @@ void MemoryServer::run() {
 
         try {
 
-            Message message = parser.parse_next(conn);
+            Command command = parser.parse_next(conn);
             cout << "123";
 
-            switch (message.getCommand()) {
+            switch (command.getCommand()) {
                 case Protocol::COM_LIST_NG:
                     cout << "LIST NEWGROOPS";
                     break;

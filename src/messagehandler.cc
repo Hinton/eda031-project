@@ -7,35 +7,35 @@ MessageHandler::MessageHandler() {
 }
 
 // TODO: Throw errors on parsing issues?
-Message MessageHandler::parse_next(const std::shared_ptr<Connection> &connection) {
+Command MessageHandler::parse_next(const std::shared_ptr<Connection> &connection) {
 
     // Get the command;
     int command = connection->read();
 
     std::cout << "COMMAND: " << command << endl;
 
-    vector<MessageParameter> parameters;
+    vector<CommandParam> parameters;
 
     // Loop until command is done.
     int type = connection->read();
     cout << type << endl;
 
     while (type != Protocol::COM_END) {
-        MessageParameter param;
-        param.commandType = type;
+        CommandParam param;
+        param.requestType = type;
 
         if (type == Protocol::PAR_NUM) {
             param.numericValue = read_number(connection);
         } else if (type == Protocol::PAR_STRING) {
             param.textValue = read_string(connection);
         } else {
-            cerr << "UNKNOWN PARAMETER TYPE " << param.commandType << endl;
+            cerr << "UNKNOWN PARAMETER TYPE " << param.requestType << endl;
         }
 
         // TODO: Handle ans? as they are only 1 char long they dont have any value?
 
         cout << "PARAM: " << endl;
-        cout << param.commandType << " " << param.numericValue << " " << param.textValue << endl;
+        cout << param.requestType << " " << param.numericValue << " " << param.textValue << endl;
 
         parameters.push_back(param);
 
@@ -43,7 +43,7 @@ Message MessageHandler::parse_next(const std::shared_ptr<Connection> &connection
         cout << type << endl;
     }
 
-    return Message(command, parameters);
+    return Command(command, parameters);
 }
 
 /**

@@ -28,7 +28,7 @@ libclientserver.a: connection.o server.o
 	ar rv libclientserver.a  connection.o server.o
 	ranlib libclientserver.a
 
-server: memoryserver.o server.o connection.o messagehandler.o message.o
+server: memoryserver.o server.o connection.o messagehandler.o request.o response.o
 
 client: connection.o
 
