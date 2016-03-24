@@ -49,6 +49,13 @@ void Message::send(const shared_ptr<Connection> &connection) {
 
     }
 
+    // Is a command
+    if (command <= Protocol::COM_END) {
+        connection->write(Protocol::COM_END);
+    } else if (command >= Protocol::ANS_LIST_NG && command <= Protocol::ANS_NAK) {
+        connection->write(Protocol::ANS_END);
+    }
+
 }
 
 /*
