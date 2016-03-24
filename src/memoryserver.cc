@@ -39,7 +39,7 @@ void MemoryServer::run() {
 
         try {
 
-            Message message = parser.parse_next(conn);
+            Response message = parser.parse_next(conn);
             cout << "123";
 
             switch (message.getCommand()) {
