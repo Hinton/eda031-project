@@ -32,7 +32,7 @@ server: memoryserver.o server.o connection.o messagehandler.o message.o
 
 client: connection.o servercommunication.o messagehandler.o message.o 
 
-database-test: 
+database-test: inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o
 
 restructure: 
 	mkdir -p bin; rm bin/*; mv *.o bin/; mv *.a bin/; mv client bin/; mv server bin/;
