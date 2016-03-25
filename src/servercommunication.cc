@@ -38,8 +38,8 @@ int ServerCommunication::find_group_nbr(const string& id) {
 
 vector<pair<int, string>> ServerCommunication::list_newsgroups() {
 	Message msg(Protocol::COM_LIST_NG, {});
-	msg.send(con);
-	Message reply = msg_handler.parse_next(con);
+	msg_handler.send_message(con, msg);
+	Message reply = msg_handler.parse_message(con);
 	vector<pair<int, string>> ret;
 	if (reply.getType() != Protocol::ANS_LIST_NG) {
 		vector<MessageParam> params = reply.getParameters();
@@ -57,8 +57,8 @@ pair<bool, int> ServerCommunication::create_newsgroup(const string& name) {
 	bool success = false;
 
 	Message msg(Protocol::COM_CREATE_NG, {MessageParam(Protocol::PAR_STRING, name.size(), name)});
-	msg.send(con);
-	Message reply = msg_handler.parse_next(con);
+	msg_handler.send_message(con, msg);
+	Message reply = msg_handler.parse_message(con);
 
 	if (reply.getType() == Protocol::ANS_CREATE_NG) {
 		vector<MessageParam> reply_params = reply.getParameters();
@@ -78,8 +78,8 @@ bool ServerCommunication::delete_newsgroup(const string& id) {
 	int group_nbr = find_group_nbr(id);
 
 	Message msg(Protocol::COM_DELETE_NG, {MessageParam(Protocol::PAR_NUM, group_nbr, "")});
-	msg.send(con);
-	Message reply = msg_handler.parse_next(con);
+	msg_handler.send_message(con, msg);
+	Message reply = msg_handler.parse_message(con);
 
 	if (reply.getType() == Protocol::ANS_DELETE_NG) {
 		vector<MessageParam> reply_params = reply.getParameters();
@@ -95,8 +95,8 @@ pair<int, vector<pair<int, string>>> ServerCommunication::list_articles(const st
 	int group_nbr = find_group_nbr(id);
 
 	Message msg(Protocol::COM_LIST_ART, {MessageParam(Protocol::PAR_NUM, group_nbr, "")});
-	msg.send(con);
-	Message reply = msg_handler.parse_next(con);
+	msg_handler.send_message(con, msg);
+	Message reply = msg_handler.parse_message(con);
 	// TODO Finish this
 	vector<pair<int, string>> ret;
 	if (reply.getType() != Protocol::ANS_LIST_ART) {

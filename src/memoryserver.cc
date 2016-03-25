@@ -40,7 +40,7 @@ void MemoryServer::run() {
 
         try {
 
-            Message message = parser.parse_next(conn);
+            Message message = parser.parse_message(conn);
             cout << "123";
 
             int cmd = message.getType();
@@ -63,10 +63,8 @@ void MemoryServer::run() {
                 p3.textValue = "Test group";
                 params.push_back(p3);
 
-
-
                 Message response(Protocol::ANS_LIST_NG, params);
-                response.send(conn);
+                parser.send_message(conn, response);
 
             } else if (cmd == Protocol::COM_CREATE_NG) {
 
@@ -78,7 +76,7 @@ void MemoryServer::run() {
                 params.push_back(p1);
 
                 Message response(Protocol::ANS_CREATE_NG, params);
-                response.send(conn);
+                parser.send_message(conn, response);
 
             } else {
                 cerr << "UNKNOWN COMMAND";

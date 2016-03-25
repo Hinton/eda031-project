@@ -7,7 +7,7 @@ MessageHandler::MessageHandler() {
 }
 
 // TODO: Throw errors on parsing issues?
-Message MessageHandler::parse_next(const std::shared_ptr<Connection> &connection) {
+Message MessageHandler::parse_message(const std::shared_ptr<Connection> &connection) {
 
     // Get the command;
     int command = connection->read();
@@ -73,4 +73,68 @@ std::string MessageHandler::read_string(const std::shared_ptr<Connection> &conne
     return s;
 }
 
+
+void MessageHandler::send_message(const shared_ptr<Connection> &connection, Message message) {
+
+    auto command = message.getType();
+
+    // Send Protocol::<cmd>
+    unsigned char cmd = static_cast<unsigned char>(command);
+    connection->write(cmd);
+
+    // Send parameters
+    auto parameters = message.getParameters();
+    for (auto it = parameters.begin(); it != parameters.end(); ++it) {
+
+        MessageParam p = *it;
+
+        switch (p.requestType) {
+
+            case Protocol::PAR_NUM:
+                connection->write(Protocol::PAR_NUM);
+                write_number(connection, p.numericValue);
+                break;
+            case Protocol::PAR_STRING:
+                connection->write(Protocol::PAR_STRING);
+                write_string(connection, p.textValue);
+                break;
+            case Protocol::ANS_ACK:
+                connection->write(Protocol::ANS_ACK);
+                break;
+            case Protocol::ANS_NAK:
+                connection->write(Protocol::ANS_NAK);
+                connection->write(p.numericValue);
+                // connection->write(Protocol::ERR_NG_DOES_NOT_EXIST);
+                // TODO: Write error message!
+                break;
+        }
+
+    }
+
+    // Is a command
+    if (command <= Protocol::COM_END) {
+        connection->write(Protocol::COM_END);
+    } else {
+        connection->write(Protocol::ANS_END);
+    }
+
+}
+
+/*
+ * Send an integer to the server as four bytes.
+ */
+void MessageHandler::write_number(const std::shared_ptr<Connection> &connection, int value) {
+    connection->write((value >> 24) & 0xFF);
+    connection->write((value >> 16) & 0xFF);
+    connection->write((value >> 8)	 & 0xFF);
+    connection->write(value & 0xFF);
+}
+
+void MessageHandler::write_string(const shared_ptr<Connection>& conn, string s) {
+    write_number(conn, static_cast<int>(s.length()));
+
+    for (char c : s) {
+        conn->write(c);
+    }
+}
 
