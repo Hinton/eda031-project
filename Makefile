@@ -30,7 +30,7 @@ libclientserver.a: connection.o server.o
 
 server: memoryserver.o server.o connection.o messagehandler.o message.o
 
-client: connection.o message.o messagehandler.o
+client: connection.o servercommunication.o messagehandler.o message.o 
 
 database-test: 
 

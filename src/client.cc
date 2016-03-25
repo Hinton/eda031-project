@@ -1,142 +1,16 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
-#include "message.h"
-#include "messagehandler.h"
+#include "servercommunication.h"
 
-#include <cctype> // for isdigit
 #include <iterator> // for istream_iterator & back_inserter
 #include <string>
-#include <memory>
+#include <memory> 
 #include <iostream>
 #include <vector>
 #include <sstream>
 #include <algorithm>
 
 using namespace std;
-
-/**
- * Utility function, could find one in standard lib
- */
-bool is_number(const string& s) {
-	for(auto it = s.begin(); it != s.end(); ++it) {
-		if (!isdigit(*it)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-/**
- * Lists the newsgroups on the server one the other side of Connection.
- */
-vector<pair<int, string>> list_newsgroups(const Connection& con) {	
-	// TODO send msg, receive reply
-	con.isConnected(); // To remove unused warnings
-	cout << "listNewsGroup called" << endl;
-	return {{0, "group0"}, {1, "group1"}};
-}
-
-/**
- * Utility function to convert either a newsgroup name or newsgroup number to a group nbr
- * for sending to the server.
- */
-int find_group_nbr(const Connection& con, const string& id) {
-	int group_nbr = -1;
-	if (is_number(id)) {
-		group_nbr = stoi(id);
-	} else {
-		vector<pair<int, string>> groups = list_newsgroups(con);
-		auto res = find_if(groups.begin(), groups.end(), [id] (pair<int, string>& p) { return p.second == id; });
-		if (res != groups.end()) {
-			group_nbr = (*res).first;
-		}
-	}
-	return group_nbr;
-}
-
-/**
- * Creates a new newsgroup on the server with the supplied name
- * Returns the number of the created group (-1 if fail) 
- * and status as string (e.g. success/failure/already exists)
- */
-pair<int, string> create_newsgroup(const Connection& con, const string& name) {
-	int group_nbr = -1;
-	bool success = false;
-	// send create_msg
-	// receive reply
-	if (success) {
-		group_nbr = find_group_nbr(con, name);
-	}
-	cout << "createNewsGroup called with: " << name << endl;
-	return make_pair(group_nbr, "createNewsGroupReply");
-}
-
-/**
- * Deletes a newsgroup on the server with the supplied [name | number]
- * Returns the status (success/fail) as string
- */
-string delete_newsgroup(const Connection& con, const string& id) {
-	int group_nbr = find_group_nbr(con, id);
-	cout << "deleteNewsGroup called" << "nbr: " << group_nbr << endl;
-	return "deleteNewsGroupReply";
-}
-
-/**
- * List the articles in newsgroup with id.
- * Id can either be a group number or group name.
- * Returns pair<group number, pair<article number, article string>>
- */
-pair<int, vector<pair<int, string>>> list_articles(const Connection& con, const string& id) {
-	int group_nbr = find_group_nbr(con, id);
-	// send msg
-	// recive reply
-	cout << "list_articles called with " << id  << endl;
-	vector<pair<int, string>> tmp =  {{0, "art0"}, {1, "art1"}};
-	return make_pair(group_nbr, tmp);
-}
-
-/**
- * Creates an article with the supplied content in the newsgroup identified by group_nbr
- * Returns status (success/fail) as a string
- */
-string create_article(const Connection& con, const int group_nbr, const string& title, const string& author, const string& text) {
-	con.isConnected(); // To remove unused warnings
-	// send create art msg
-	// recieve reply
-	// return result
-	cout << "create_article called with, nbr: " << group_nbr << ", title: " << title << ", author: " << author << ", text: " << text << endl;
-	return "create_articleReply";
-}
-
-/**
- * Deletes the article in newsgroup group_nbr and title id.
- * Returns status as string
- */
-string delete_article(const Connection& con, const int group_nbr, const string& id) {
-	// can only delete an article when called with a article number NOT with article name
-	// TODO Fix this?
-	con.isConnected(); // To remove unused warnings
-	int art_nbr = 0;
-	try {
-		art_nbr = stoi(id);
-	} catch (exception& e) {
-		return "Not an article number";
-	}
-
-	// send msg
-	// Message reply = MessageHandler::parseNext(make_shared<Connection>(&con));
-	cout << "delete_article called with " << group_nbr << " " <<  art_nbr << endl;
-	return "deleterticleReply";
-}
-/**
- * Fetches an article witht the title 'title',from newsgroup group_nbr.
- * Returns the author, title and text as three elements in a vector
- */
-vector<string> get_article(const Connection& con, const int group_nbr, const string& title) {
-	con.isConnected(); // To remove unused warnings
-	cout << "get_article called wth: " << group_nbr << " " << title << endl;
-	return { "<title>", "<author>", "Lorem ipsum..." } ;
-}
 
 void cmd_err(const string& err_msg) {
 	cerr << err_msg << endl;
@@ -189,7 +63,8 @@ int main(int argc, char* argv[]) {
 		try {
 			port = stoi(argv[2]);
 		} catch (exception& e) {
-			cerr << "Wrong port number" << e.what() << endl;
+			cerr << "Wrong port number" << endl;
+			cout << e.what() << endl;
 			return 1;
 		}
 	} else if (argc == 1) {
@@ -204,34 +79,36 @@ int main(int argc, char* argv[]) {
 	cout << "Connecting to: " << host << "@" << port << endl;
 	cout << "Still in testing, does not actually connect" << endl;
 
-	Connection con(host, port);
+	shared_ptr<Connection> con(new Connection(host, port));
 	// TODO Uncomment this when live
-	//if (!con.isConnected()) {
+	//if (!con->isConnected()) {
 	//	cerr << "Connection failed, exiting" << endl;
 	//	return 1;
 	// }
 	cout << "Connection succeeded" << endl;
+	ServerCommunication server(con);
 	cout << "news>";
+
 	string line;
 	int current_group = 0;
 	bool is_in_group = false; // Whether or not current_group can be used
 	while(getline(cin, line)) {
 		vector<string> words = get_words(line);
 		if (words.size() == 0) {
-			cerr << "Unrecognized command. See help section" << endl;
+			cmd_err("Unrecognized command. See help section");
 			cout << "news>";
 			continue;
 		}
 		string cmd = words[0];
 		vector<string> args(words.begin()+1, words.end());
 		if (cmd == "list" && args.size() == 0) { // list newsgroups
-			vector<pair<int, string>> result = list_newsgroups(con);
+			vector<pair<int, string>> result = server.list_newsgroups();
 			is_in_group = false;
 			for (auto it = result.begin(); it != result.end(); ++it) {
 				cout << it->first << ". " << it->second << endl;
 			}	
 		} else if (cmd == "list" && args.size() == 1) { // list articles
-			pair<int, vector<pair<int, string>>> res = list_articles(con, args[0]);
+			pair<int, vector<pair<int, string>>> res = server.list_articles(args[0]);
 			current_group = res.first;
 			auto result = res.second;
 			is_in_group = true;
@@ -239,21 +116,32 @@ int main(int argc, char* argv[]) {
 				cout << it->first << ". " << it->second << endl;
 			}	
 		} else if (cmd == "create" && args.size() == 1) { // create newsgroup
-			pair<int, string> res = create_newsgroup(con, args[0]);
-			cout << res.second << endl;
-			current_group = res.first;
-			is_in_group = true;
+			pair<bool, int> res = server.create_newsgroup(args[0]);
+			if (res.first) {
+				cout << "Group successfully created" << endl;
+				current_group = res.second;
+				is_in_group = true;
+			} else {
+				cout << "Failed, name already exists" << endl;
+			}
 		} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
-			string result = create_article(con, current_group, args[0], args[1], args[2]);
+			string result = server.create_article(current_group, args[0], args[1], args[2]);
 			cout << result << endl;
 		} else if (cmd == "delete_art" && args.size() == 1 && is_in_group) { // delete article in group
-			string result = delete_article(con, current_group, args[0]);
+			string result = server.delete_article(current_group, args[0]);
 			cout << result << endl;
 		} else if(cmd == "delete_grp" && args.size() == 1) { // delete newsgroup
-			string result = delete_newsgroup(con, args[0]);
+			bool success = server.delete_newsgroup(args[0]);
+			if (success) {
+				cout << "Group successfully deleted" << endl;
+			} else {
+				cout << "Failed, no such group" << endl;
+			}
+		} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
+			string result = server.create_article(current_group, args[0], args[1], args[2]);
 			cout << result << endl;
 		} else if (cmd == "read" && args.size() == 1 && is_in_group) { // read article in latest_group
-			vector<string> result = get_article(con, current_group, args[0]);
+			vector<string> result = server.get_article(current_group, args[0]);
 			cout << result[0] << "\t From: " << result[1] << endl;
 			cout << result[2] << endl;
 		} else if (cmd == "help") {
