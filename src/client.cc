@@ -21,7 +21,7 @@ void print_help(ostream &o) {
 	o << "The application accepts a command followed by zero or more parameters." << endl;
 	o << "Parameters that contain spaces needs to be enclosed in quotation marks, e.g. \"text with space\"." << endl;
 	o << "[ x | y ] means either x or y." << endl;
-	o << "Commands : Explanation" << endl;
+	o << "Commands : Explanations" << endl;
 	o << "list : Lists the available newsgroups." << endl;
 	o << "list [Newsgroup name | Newsgroup number] : Lists the articles in the specified newsgroup." << endl;
 	o << "create [Newsgroup name] : Creates a newsgroup with the specified name." << endl;
@@ -102,6 +102,7 @@ int main(int argc, char* argv[]) {
 		if (cmd == "list" && args.size() == 0) { // list newsgroups
 			vector<pair<int, string>> result = server.list_newsgroups();
 			is_in_group = false;
+			cout << "Available newsgroups:" << endl;
 			for (auto it = result.begin(); it != result.end(); ++it) {
 				cout << it->first << ". " << it->second << endl;
 			}	

@@ -37,9 +37,11 @@ vector<pair<int, string>> ServerCommunication::list_newsgroups() {
 	Message reply = msg_handler.parse_message(con);
 	vector<pair<int, string>> ret;
 	if (reply.getType() == Protocol::ANS_LIST_NG) {
-		vector<MessageParam> params = reply.getParameters();
-		for (int i = 1; i != params[0].numericValue; i+=2) {
-			ret.push_back(make_pair(params[i].numericValue, params[i+1].textValue));
+		vector<MessageParam> reply_params = reply.getParameters();
+		for (size_t i = 1; i != reply_params.size(); i+=2) {
+			int group_nbr = reply_params[i].numericValue;
+			string title = reply_params[i+1].textValue;
+			ret.push_back(make_pair(group_nbr, title));
 		}
 	} else {
 		protocol_err("COM_LIST_NG", "ANS_LIST_NG", reply.getType());
