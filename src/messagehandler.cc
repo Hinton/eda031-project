@@ -16,11 +16,13 @@ Message MessageHandler::parse_message(const std::shared_ptr<Connection> &connect
 
     vector<MessageParam> parameters;
 
-    // Loop until command is done.
     int type = connection->read();
-    cout << type << endl;
 
-    while (type != Protocol::COM_END) {
+    // Continue untill the message is finnished
+    while (type != Protocol::COM_END && type != Protocol::ANS_END) {
+
+        cout << "TYPE: " << type << endl;
+
         MessageParam param;
         param.requestType = type;
 
@@ -28,11 +30,14 @@ Message MessageHandler::parse_message(const std::shared_ptr<Connection> &connect
             param.numericValue = read_number(connection);
         } else if (type == Protocol::PAR_STRING) {
             param.textValue = read_string(connection);
+        } else if (type == Protocol::ANS_ACK) {
+            // No need to do anything on ack.
+        } else if (type == Protocol::ANS_NAK) {
+            // Load the error message.
+            param.numericValue = connection->read();
         } else {
             cerr << "UNKNOWN PARAMETER TYPE " << param.requestType << endl;
         }
-
-        // TODO: Handle ans? as they are only 1 char long they dont have any value?
 
         cout << "PARAM: " << endl;
         cout << param.requestType << " " << param.numericValue << " " << param.textValue << endl;
@@ -40,7 +45,6 @@ Message MessageHandler::parse_message(const std::shared_ptr<Connection> &connect
         parameters.push_back(param);
 
         type = connection->read();
-        cout << type << endl;
     }
 
     return Message(command, parameters);
