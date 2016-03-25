@@ -13,12 +13,7 @@ using namespace std;
  * Utility function, couldn't find one in standard lib
  */
 bool ServerCommunication::is_number(const string& s) {
-	for(auto it = s.begin(); it != s.end(); ++it) {
-		if (!isdigit(*it)) {
-			return false;
-		}
-	}
-	return true;
+	return all_of(s.cbegin(), s.cend(), [](char c) { return isdigit(c); });
 }
 
 int ServerCommunication::find_group_nbr(const string& id) {
