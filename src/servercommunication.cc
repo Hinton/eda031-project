@@ -24,7 +24,7 @@ int ServerCommunication::find_group_nbr(const string& id) {
 		vector<pair<int, string>> groups = list_newsgroups();
 		auto res = find_if(groups.begin(), groups.end(), [id] (pair<int, string>& p) { return p.second == id; });
 		if (res != groups.end()) {
-			group_nbr = (*res).first;
+			group_nbr = res->first;
 		}
 	}
 	return group_nbr;
