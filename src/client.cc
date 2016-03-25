@@ -55,7 +55,7 @@ vector<string> get_words(const string& line) {
 
 int main(int argc, char* argv[]) {
 	const char* def_host = "localhost";
-	int def_port = 1234;
+	int def_port = 1337;
 	const char* host;
 	int port;
 	if (argc == 3) {
@@ -77,14 +77,12 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	cout << "Connecting to: " << host << "@" << port << endl;
-	cout << "Still in testing, does not actually connect" << endl;
 
 	shared_ptr<Connection> con(new Connection(host, port));
-	// TODO Uncomment this when live
-	//if (!con->isConnected()) {
-	//	cerr << "Connection failed, exiting" << endl;
-	//	return 1;
-	// }
+	if (!con->isConnected()) {
+		cerr << "Connection failed, exiting" << endl;
+		return 1;
+	}
 	cout << "Connection succeeded" << endl;
 	ServerCommunication server(con);
 	cout << "news>";
@@ -125,11 +123,22 @@ int main(int argc, char* argv[]) {
 				cout << "Failed, name already exists" << endl;
 			}
 		} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
-			string result = server.create_article(current_group, args[0], args[1], args[2]);
-			cout << result << endl;
+			bool success = server.create_article(current_group, args[0], args[1], args[2]);
+			if (success) {
+				cout << "Article successfully created" << endl;
+			} else {
+				cout << "Newsgroup does not exists" << endl;
+			}
 		} else if (cmd == "delete_art" && args.size() == 1 && is_in_group) { // delete article in group
-			string result = server.delete_article(current_group, args[0]);
-			cout << result << endl;
+			int art_nbr = 0;
+			try {
+				art_nbr = stoi(args[0]);
+				string result = server.delete_article(current_group, art_nbr);
+				cout << result << endl;
+			} catch (exception& e) {
+				cerr << "Not an article number" << endl;
+				cerr << e.what() << endl;
+			}
 		} else if(cmd == "delete_grp" && args.size() == 1) { // delete newsgroup
 			bool success = server.delete_newsgroup(args[0]);
 			if (success) {
@@ -137,13 +146,23 @@ int main(int argc, char* argv[]) {
 			} else {
 				cout << "Failed, no such group" << endl;
 			}
-		} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
-			string result = server.create_article(current_group, args[0], args[1], args[2]);
-			cout << result << endl;
 		} else if (cmd == "read" && args.size() == 1 && is_in_group) { // read article in latest_group
-			vector<string> result = server.get_article(current_group, args[0]);
-			cout << result[0] << "\t From: " << result[1] << endl;
-			cout << result[2] << endl;
+			int art_nbr = 0;
+			try {
+				art_nbr = stoi(args[0]);
+				pair<vector<string>, string> result = server.get_article(current_group, art_nbr);
+				vector<string> article = result.first;
+				string err_msg = result.second;
+				if (article.size() != 0) {
+					cout << article[0] << "\t From: " << article[1] << endl;
+					cout << article[2] << endl;
+				} else {
+					cmd_err(err_msg);
+				}
+			} catch (exception& e) {
+				cmd_err("Not an article number");
+				cmd_err(e.what());
+			}
 		} else if (cmd == "help") {
 			print_help(cout);
 		} else if (cmd == "exit") {

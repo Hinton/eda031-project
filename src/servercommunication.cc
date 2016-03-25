@@ -17,7 +17,7 @@ bool ServerCommunication::is_number(const string& s) {
 }
 
 int ServerCommunication::find_group_nbr(const string& id) {
-	int group_nbr = 0;
+	int group_nbr = -1;
 	if (is_number(id)) {
 		group_nbr = stoi(id);
 	} else {
@@ -36,7 +36,7 @@ vector<pair<int, string>> ServerCommunication::list_newsgroups() {
 	msg_handler.send_message(con, msg);
 	Message reply = msg_handler.parse_message(con);
 	vector<pair<int, string>> ret;
-	if (reply.getType() != Protocol::ANS_LIST_NG) {
+	if (reply.getType() == Protocol::ANS_LIST_NG) {
 		vector<MessageParam> params = reply.getParameters();
 		for (int i = 1; i != params[0].numericValue; i+=2) {
 			ret.push_back(make_pair(params[i].numericValue, params[i+1].textValue));
@@ -64,7 +64,6 @@ pair<bool, int> ServerCommunication::create_newsgroup(const string& name) {
 	} else {
 		protocol_err("COM_CREATE_NG", "ANS_CREATE_NG", reply.getType());
 	}
-	cout << "createNewsGroup called with: " << name << endl;
 	return make_pair(success, group_nbr);
 }
 
@@ -82,7 +81,6 @@ bool ServerCommunication::delete_newsgroup(const string& id) {
 	} else {
 		protocol_err("COM_DELETE_NG", "ANS_DELETE_NG", reply.getType());
 	}
-	cout << "deleteNewsGroup called" << "nbr: " << group_nbr << endl;
 	return success;
 }
 
@@ -92,47 +90,98 @@ pair<int, vector<pair<int, string>>> ServerCommunication::list_articles(const st
 	Message msg(Protocol::COM_LIST_ART, {MessageParam(Protocol::PAR_NUM, group_nbr, "")});
 	msg_handler.send_message(con, msg);
 	Message reply = msg_handler.parse_message(con);
-	// TODO Finish this
+
 	vector<pair<int, string>> ret;
-	if (reply.getType() != Protocol::ANS_LIST_ART) {
+	if (reply.getType() == Protocol::ANS_LIST_ART) {
+		vector<MessageParam> reply_params = reply.getParameters();
+		if (reply_params[0].numericValue == Protocol::ANS_ACK) {
+			for (int i = 1; i != reply_params[1].numericValue; i+=2) {
+				ret.push_back(make_pair(reply_params[i].numericValue, reply_params[i+1].textValue));
+			}
+		} else {
+			group_nbr = -1;
+		}
 	} else {
 		protocol_err("COM_LIST_ART", "ANS_LIST_ART", reply.getType());
 	}
-	cout << "list_articles called with " << id  << endl;
 	return make_pair(group_nbr, ret);
 }
 
-string ServerCommunication::create_article(const int group_nbr, const string& title, const string& author, const string& text) {
-	// TODO Finish this
-	con->isConnected(); // To remove unused warnings
-	// send create art msg
-	// recieve reply
-	// return result
-	cout << "create_article called with, nbr: " << group_nbr << ", title: " << title << ", author: " << author << ", text: " << text << endl;
-	return "create_articleReply";
-}
+bool ServerCommunication::create_article(const int group_nbr, const string& title, const string& author, const string& text) {
+	bool success = false;
+	vector<MessageParam> msg_params {
+		MessageParam(Protocol::PAR_NUM, group_nbr, ""),
+		MessageParam(Protocol::PAR_STRING, title.size(), title),
+		MessageParam(Protocol::PAR_STRING, author.size(), author),
+		MessageParam(Protocol::PAR_STRING, text.size(), text)};
 
-string ServerCommunication::delete_article(const int group_nbr, const string& id) {
-	// can only delete an article when called with a article number NOT with article name
-	// TODO Fix this?
-	// TODO Finish this
-	con->isConnected(); // To remove unused warnings
-	int art_nbr = 0;
-	try {
-		art_nbr = stoi(id);
-	} catch (exception& e) {
-		return "Not an article number";
+	Message msg(Protocol::COM_CREATE_ART, msg_params);
+	msg_handler.send_message(con, msg);
+	Message reply = msg_handler.parse_message(con);
+
+	vector<pair<int, string>> ret;
+	if (reply.getType() == Protocol::ANS_CREATE_ART) {
+		vector<MessageParam> reply_params = reply.getParameters();
+		success = reply_params[0].numericValue == Protocol::ANS_ACK;
+	} else {
+		protocol_err("COM_CREATE_ART", "ANS_CREATE_ART", reply.getType());
 	}
-
-	// send msg
-	// Message reply = MessageHandler::parseNext(make_shared<Connection>(&con));
-	cout << "delete_article called with " << group_nbr << " " <<  art_nbr << endl;
-	return "deleterticleReply";
+	return success;
 }
 
-vector<string> ServerCommunication::get_article(const int group_nbr, const string& title) {
-	// TODO Finish this
-	con->isConnected(); // To remove unused warnings
-	cout << "get_article called wth: " << group_nbr << " " << title << endl;
-	return { "<title>", "<author>", "Lorem ipsum..." } ;
+string ServerCommunication::delete_article(const int group_nbr, const int art_nbr) {
+	string result = "";
+
+	vector<MessageParam> msg_params {
+		MessageParam(Protocol::PAR_NUM, group_nbr, ""),
+		MessageParam(Protocol::PAR_NUM, art_nbr, "")};
+
+	Message msg(Protocol::COM_DELETE_ART, msg_params);
+	msg_handler.send_message(con, msg);
+	Message reply = msg_handler.parse_message(con);
+
+	if (reply.getType() == Protocol::ANS_DELETE_ART) {
+		vector<MessageParam> reply_params = reply.getParameters();
+		if (reply_params[0].numericValue == Protocol::ANS_ACK) {
+			result = "Success";
+		} else if (reply_params[1].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
+			result = "Newsgoup does not exist";
+		} else {
+			result = "Artcile does not exist";
+		}
+	} else {
+		protocol_err("COM_DELETE_ART", "ANS_DELETE_ART", reply.getType());
+	}
+	return result;
+}
+
+
+pair<vector<string>, string> ServerCommunication::get_article(const int group_nbr, const int art_nbr) {
+	vector<string> ret;
+	string err_msg = "";
+
+
+	vector<MessageParam> msg_params {
+		MessageParam(Protocol::PAR_NUM, group_nbr, ""),
+		MessageParam(Protocol::PAR_NUM, art_nbr, "")};
+
+	Message msg(Protocol::COM_GET_ART, msg_params);
+	msg_handler.send_message(con, msg);
+	Message reply = msg_handler.parse_message(con);
+
+	if (reply.getType() == Protocol::ANS_GET_ART) {
+		vector<MessageParam> reply_params = reply.getParameters();
+		if (reply_params[0].numericValue == Protocol::ANS_ACK) {
+			ret.push_back(reply_params[1].textValue); // title
+			ret.push_back(reply_params[2].textValue); // author
+			ret.push_back(reply_params[3].textValue); // text
+		} else if (reply_params[1].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
+			err_msg = "Newsgoup does not exist";
+		} else {
+			err_msg = "Article does not exist";
+		}
+	} else {
+		protocol_err("COM_GET_ART", "ANS_GET_ART", reply.getType());
+	}
+	return make_pair(ret, err_msg);
 }

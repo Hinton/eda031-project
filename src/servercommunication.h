@@ -37,27 +37,28 @@ public:
 	/**
 	 * List the articles in newsgroup with id.
 	 * Id can either be a group number or group name.
+	 * Vector is empty and group_nbr is -1  if the group cant be found.
 	 * Returns pair<group number, pair<article number, article string>>
 	 */
 	std::pair<int, std::vector<std::pair<int, std::string>>> list_articles(const std::string& id);
 	
 	/**
  	 * Creates an article with the supplied content in the newsgroup identified by group_nbr
-	 * Returns status (success/fail) as a string
+	 * Returns status (success/fail)
 	 */
-	std::string create_article(const int group_nbr, const std::string& title, const std::string& author, const std::string& text);
+	bool create_article(const int group_nbr, const std::string& title, const std::string& author, const std::string& text);
 
 	/**
-	 * Deletes the article in newsgroup group_nbr and title id.
+	 * Deletes the article in newsgroup group_nbr and number art_nbr.
 	 * Returns status as string
 	 */
-	std::string delete_article(const int group_nbr, const std::string& id);
+	std::string delete_article(const int group_nbr, const int art_nbr);
 
 	/**
-	 * Fetches an article witht the title 'title',from newsgroup group_nbr.
+	 * Fetches an article with the number art_nbr,from newsgroup group_nbr.
 	 * Returns the author, title and text as three elements in a vector
 	 */
-	std::vector<std::string> get_article(const int group_nbr, const std::string& title);
+	std::pair<std::vector<std::string>, std::string> get_article(const int group_nbr, const int art_nbr);
 
 private:
 	const std::shared_ptr<Connection>& con;
