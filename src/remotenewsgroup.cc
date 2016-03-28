@@ -25,12 +25,12 @@ std::shared_ptr<IArticle> RemoteNewsgroup::get_article(const int &id) {
 	throw func_not_supported();
 }
 
-std::shared_ptr<IArticle> RemoteNewsgroup::add_article(const int &id, const std::string &title,
+std::shared_ptr<IArticle> RemoteNewsgroup::create_article(const std::string &title,
 	const std::string &author, const std::string &text) {
 	throw func_not_implemented();
 }
 
-std::vector<std::shared_ptr<IArticle>> RemoteNewsgroup::get_articles() {
+std::vector<std::shared_ptr<IArticle>> RemoteNewsgroup::list_articles() {
 	//TODO: Implement
 	throw func_not_implemented();	
 }
