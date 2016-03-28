@@ -2,6 +2,7 @@
 #define CUSTOM_EXCEPTIONS_H
 
 #include <exception>
+#include <string>
 
 class obj_already_exists : public std::exception 
 {
@@ -15,16 +16,16 @@ public:
 class obj_not_found : public std::exception
 {
 public:
-	obj_not_found(const string &msg) : msg(msg) {};
+	obj_not_found(const std::string &msg) : msg(msg) {};
 	virtual const char* what() const throw()
 	{
 		if (msg.empty())
 			return "The object you are searching for could not be found.";
 		else 
-			return msg;
+			return msg.c_str();
 	}
 private:
-	string msg;
+	std::string msg;
 };
 
 class func_not_supported : public std::exception
