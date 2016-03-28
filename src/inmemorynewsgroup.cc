@@ -1,6 +1,6 @@
 #include "inmemorynewsgroup.h"
 #include "inmemoryarticle.h"
-#include "usedidexception.h"
+#include "idusedexception.h"
 
 using namespace std;
 
@@ -14,7 +14,7 @@ std::shared_ptr<IArticle> InMemoryNewsgroup::add_article(const int &id, const st
 		return articles.at(id);
 	}
 	else {
-		throw UsedIDException("Article ID already used.");
+		throw IDUsedException("Article ID already used.");
 	}
 }
 

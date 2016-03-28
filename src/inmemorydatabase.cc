@@ -1,6 +1,6 @@
 #include "inmemorydatabase.h"
 #include "inmemorynewsgroup.h"
-#include "usedidexception.h"
+#include "idusedexception.h"
 
 using namespace std;
 
@@ -19,7 +19,7 @@ std::shared_ptr<INewsgroup> InMemoryDatabase::add_newsgroup(const int &id, const
 		return newsgroups.at(id);
 	}
 	else {
-		throw UsedIDException("Newsgroup ID already used.");
+		throw IDUsedException("Newsgroup ID already used.");
 	}
 }
 

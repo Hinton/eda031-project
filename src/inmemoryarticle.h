@@ -1,5 +1,5 @@
-#ifndef EDA031_PROJECT_INMEMORYARTICLE_H
-#define EDA031_PROJECT_INMEMORYARTICLE_H
+#ifndef INMEMORYARTICLE_H
+#define INMEMORYARTICLE_H
 
 #include <string>
 #include "iarticle.h"
