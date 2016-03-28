@@ -6,22 +6,21 @@
 class IArticle
 {
 public:
-  virtual ~IArticle() {};
+	virtual ~IArticle() {};
 
-  virtual int get_id();
-  //virtual void setId(const int &id);
+	virtual int get_id();
 
-  virtual std::string get_title();
-  virtual void set_title(const std::string &title);
+	virtual std::string get_title();
+	virtual void set_title(const std::string &title);
 
-  virtual std::string get_author();
-  virtual void set_author(const std::string &author);
+	virtual std::string get_author();
+	virtual void set_author(const std::string &author);
 
-  virtual std::string get_text();
-  virtual void set_text(const std::string &text);
+	virtual std::string get_text();
+	virtual void set_text(const std::string &text);
 
 protected:
-  IArticle() {};
+	IArticle() {};
 };
 
 #endif
