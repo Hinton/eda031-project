@@ -25,7 +25,7 @@ int find_group_nbr(shared_ptr<RemoteDatabase> db, const string& id) {
 	if (is_number(id)) {
 		group_nbr = stoi(id);
 	} else {
-		auto groups = db->get_newsgroups();
+		auto groups = db->list_newsgroups();
 		auto res = find_if(groups.begin(), groups.end(), [id] (shared_ptr<INewsgroup> p) { return p->get_title() == id; });
 		if (res != groups.end()) {
 			group_nbr = (*res)->get_id();
@@ -124,13 +124,13 @@ int main(int argc, char* argv[]) {
 		string cmd = words[0];
 		vector<string> args(words.begin()+1, words.end());
 		if (cmd == "list" && args.size() == 0) { // list newsgroups
-			for (auto &newsgroup : db->get_newsgroups()) {
+			for (auto &newsgroup : db->list_newsgroups()) {
 				cout << newsgroup->get_id() <<  ". " << newsgroup->get_title() << endl;
 			}
 		} else if (cmd == "list" && args.size() == 1) { // list articles
 			current_group = find_group_nbr(db, args[0]);
 			if (current_group != -1) {
-				for (auto &article : db->get_articles(current_group)) {
+				for (auto &article : db->list_articles(current_group)) {
 					cout << article->get_id() <<  ". " << article->get_title() << endl;
 				}
 			} else {
@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
 			is_in_group = true;
 		} else if (cmd == "create" && args.size() == 1) { // create newsgroup
 			try {
-				auto res = db->add_newsgroup(0, args[0]);
+				auto res = db->create_newsgroup(args[0]);
 				cout << "Group successfully created" << endl;
 				current_group = res->get_id();
 				is_in_group = true;
@@ -148,14 +148,14 @@ int main(int argc, char* argv[]) {
 			}
 		} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
 
-			auto res = db->add_article(current_group, 0, args[0], args[1], args[2]);
+			auto res = db->create_article(current_group, args[0], args[1], args[2]);
 			cout << "Article successfully created" << endl;
 		} else if (cmd == "delete_art" && args.size() == 1 && is_in_group) { // delete article in group
 			int art_nbr = 0;
 			bool success = false;
 			try {
 				art_nbr = stoi(args[0]);
-				success = db->remove_article(current_group, art_nbr);
+				success = db->delete_article(current_group, art_nbr);
 			} catch (invalid_argument& e) {
 				cmd_err("Article must be specified with a number");
 				cmd_err(e.what());
@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
 			}
 		} else if(cmd == "delete_grp" && args.size() == 1) { // delete newsgroup
 			int group_nbr = find_group_nbr(db, args[0]);
-			bool success = db->remove_newsgroup(group_nbr);
+			bool success = db->delete_newsgroup(group_nbr);
 			if (success) {
 				cout << "Group successfully deleted" << endl;
 			} else {

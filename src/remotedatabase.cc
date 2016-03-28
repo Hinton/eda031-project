@@ -35,7 +35,7 @@ shared_ptr<INewsgroup> RemoteDatabase::create_newsgroup(const string &title) {
 
 bool RemoteDatabase::delete_newsgroup(const int &id) {
 	//TODO: Not use to_string() ?
-	return scom->delete_newsgroup(to_string(id));
+	return scom->delete_newsgroup(id);
 }
 
 vector<shared_ptr<IArticle>> RemoteDatabase::list_articles(const int& newsgroup_id) {
