@@ -31,8 +31,7 @@ std::shared_ptr<IArticle> RemoteNewsgroup::create_article(const std::string &tit
 }
 
 std::vector<std::shared_ptr<IArticle>> RemoteNewsgroup::list_articles() {
-	//TODO: Implement
-	throw func_not_implemented();	
+	return rdb->list_articles(this->id);
 }
 
 bool RemoteNewsgroup::remove_article(const int &article_id) {
