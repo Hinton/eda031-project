@@ -25,7 +25,7 @@ InMemoryNewsgroup::article_vec InMemoryNewsgroup::list_articles() {
 	return ret;
 }
 
-bool InMemoryNewsgroup::remove_article(const int &id) {
+bool InMemoryNewsgroup::delete_article(const int &id) {
 	bool success = false;
 	if (articles.find(id) != articles.end()) {
 		articles.erase(id);

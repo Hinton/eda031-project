@@ -25,7 +25,7 @@ public:
 
 	virtual std::vector<std::shared_ptr<IArticle>> list_articles() = 0;
 
-	virtual bool remove_article(const int &id) = 0;
+	virtual bool delete_article(const int &id) = 0;
 
 protected:
 	INewsgroup() { };

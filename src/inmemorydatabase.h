@@ -19,7 +19,7 @@ public:
 
 	std::shared_ptr<INewsgroup> create_newsgroup(const std::string &title);
 
-	bool remove_newsgroup(const int &id);
+	bool delete_newsgroup(const int &id);
 
 	article_vec list_articles(const int &newsgroup_id);
 
@@ -28,7 +28,7 @@ public:
 	std::shared_ptr<IArticle> create_article(const int &newsgroup_id, const std::string &title,
 											 const std::string &author, const std::string &text);
 
-	bool remove_article(const int &newsgroup_id, const int &article_id);
+	bool delete_article(const int &newsgroup_id, const int &article_id);
 
 private:
 	int get_newsgroup_id() { return free_newsgroup_id++; }

@@ -28,7 +28,7 @@ public:
 
 	article_vec list_articles();
 
-	bool remove_article(const int &id);
+	bool delete_article(const int &id);
 
 private:
 	using article_map = std::map<int, std::shared_ptr<InMemoryArticle>>;
