@@ -16,6 +16,24 @@
 
 using namespace std;
 
+bool is_number(const string& s)  {
+	return all_of(s.cbegin(), s.cend() , [] (char c)  { return isdigit(c); });
+}
+
+int find_group_nbr(shared_ptr<RemoteDatabase> db, const string& id) {
+	int group_nbr = -1;
+	if (is_number(id)) {
+		group_nbr = stoi(id);
+	} else {
+		auto groups = db->get_newsgroups();
+		auto res = find_if(groups.begin(), groups.end(), [id] (shared_ptr<INewsgroup> p) { return p->get_title() == id; });
+		if (res != groups.end()) {
+			group_nbr = (*res)->get_id();
+		}
+	}
+	return group_nbr;
+}
+
 void cmd_err(const string& err_msg) {
 	cerr << err_msg << endl;
 }
@@ -91,7 +109,7 @@ int main(int argc, char* argv[]) {
 	ServerCommunication server(con);
 	cout << "news>";
 
-	RemoteDatabase *db = new RemoteDatabase(shared_ptr<ServerCommunication>(&server));
+	shared_ptr<RemoteDatabase> db = shared_ptr<RemoteDatabase> (new RemoteDatabase(shared_ptr<ServerCommunication>(&server)));
 
 	string line;
 	int current_group = 0;
@@ -107,50 +125,55 @@ int main(int argc, char* argv[]) {
 		vector<string> args(words.begin()+1, words.end());
 		if (cmd == "list" && args.size() == 0) { // list newsgroups
 			for (auto &newsgroup : db->get_newsgroups()) {
-				cout << "Title: " << newsgroup->get_title() << endl;
+				cout << newsgroup->get_id() <<  ". " << newsgroup->get_title() << endl;
 			}
-			/*vector<pair<int, string>> result = server.list_newsgroups();
-			is_in_group = false;
-			cout << "Available newsgroups:" << endl;
-			for (auto it = result.begin(); it != result.end(); ++it) {
-				cout << it->first << ". " << it->second << endl;
-			}	*/
 		} else if (cmd == "list" && args.size() == 1) { // list articles
-			pair<int, vector<pair<int, string>>> res = server.list_articles(args[0]);
-			current_group = res.first;
-			auto result = res.second;
-			is_in_group = true;
-			for (auto it = result.begin(); it != result.end(); ++it) {
-				cout << it->first << ". " << it->second << endl;
-			}	
-		} else if (cmd == "create" && args.size() == 1) { // create newsgroup
-			pair<bool, int> res = server.create_newsgroup(args[0]);
-			if (res.first) {
-				cout << "Group successfully created" << endl;
-				current_group = res.second;
-				is_in_group = true;
+			current_group = find_group_nbr(db, args[0]);
+			if (current_group != -1) {
+				for (auto &article : db->get_articles(current_group)) {
+					cout << article->get_id() <<  ". " << article->get_title() << endl;
+				}
 			} else {
-				cout << "Failed, name already exists" << endl;
+				cmd_err("No such newsgroup");
+			}
+			is_in_group = true;
+		} else if (cmd == "create" && args.size() == 1) { // create newsgroup
+			try {
+				auto res = db->add_newsgroup(0, args[0]);
+				cout << "Group successfully created" << endl;
+				current_group = res->get_id();
+				is_in_group = true;
+			} catch (exception& e) {
+				cmd_err("Failed, name already exists");
 			}
 		} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
-			bool success = server.create_article(current_group, args[0], args[1], args[2]);
-			if (success) {
-				cout << "Article successfully created" << endl;
-			} else {
-				cout << "Newsgroup does not exists" << endl;
-			}
+
+			auto res = db->add_article(current_group, 0, args[0], args[1], args[2]);
+			cout << "Article successfully created" << endl;
 		} else if (cmd == "delete_art" && args.size() == 1 && is_in_group) { // delete article in group
 			int art_nbr = 0;
+			bool success = false;
 			try {
 				art_nbr = stoi(args[0]);
-				string result = server.delete_article(current_group, art_nbr);
-				cout << result << endl;
-			} catch (exception& e) {
-				cerr << "Not an article number" << endl;
-				cerr << e.what() << endl;
+				success = db->remove_article(current_group, art_nbr);
+			} catch (invalid_argument& e) {
+				cmd_err("Article must be specified with a number");
+				cmd_err(e.what());
+				/*
+			} catch (group_not_found& e) {
+				cmd_err("No such newsgroup");
+			} catch (article_not_found& e) {
+				cmd_err("No such article");
+				*/
+			}
+			if(success) {
+				cout << "Article successfully removed" << endl;
+			} else {
+				cmd_err("Article could not be removed");
 			}
 		} else if(cmd == "delete_grp" && args.size() == 1) { // delete newsgroup
-			bool success = server.delete_newsgroup(args[0]);
+			int group_nbr = find_group_nbr(db, args[0]);
+			bool success = db->remove_newsgroup(group_nbr);
 			if (success) {
 				cout << "Group successfully deleted" << endl;
 			} else {
@@ -160,18 +183,18 @@ int main(int argc, char* argv[]) {
 			int art_nbr = 0;
 			try {
 				art_nbr = stoi(args[0]);
-				pair<vector<string>, string> result = server.get_article(current_group, art_nbr);
-				vector<string> article = result.first;
-				string err_msg = result.second;
-				if (article.size() != 0) {
-					cout << article[0] << "\t From: " << article[1] << endl;
-					cout << article[2] << endl;
-				} else {
-					cmd_err(err_msg);
-				}
+				auto art = db->get_article(current_group, art_nbr);
+				cout << art->get_title() << "\t From: " << art->get_author() << endl;
+					cout << art->get_text() << endl;
 			} catch (exception& e) {
 				cmd_err("Not an article number");
 				cmd_err(e.what());
+				/*
+			} catch (group_not_found& e) {
+				cmd_err("No such newsgroup");
+			} catch (article_not_found& e) {
+				cmd_err("No such article");
+				*/
 			}
 		} else if (cmd == "help") {
 			print_help(cout);

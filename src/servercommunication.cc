@@ -8,27 +8,6 @@
 using namespace std;
 
 
-
-/**
- * Utility function, couldn't find one in standard lib
- */
-bool ServerCommunication::is_number(const string& s) {
-	return all_of(s.cbegin(), s.cend(), [](char c) { return isdigit(c); });
-}
-
-int ServerCommunication::find_group_nbr(const string& id) {
-	int group_nbr = -1;
-	if (is_number(id)) {
-		group_nbr = stoi(id);
-	} else {
-		vector<pair<int, string>> groups = list_newsgroups();
-		auto res = find_if(groups.begin(), groups.end(), [id] (pair<int, string>& p) { return p.second == id; });
-		if (res != groups.end()) {
-			group_nbr = res->first;
-		}
-	}
-	return group_nbr;
-}
 // TODO throw exceptions instead of calling protocol_err?
 
 vector<pair<int, string>> ServerCommunication::list_newsgroups() {
@@ -61,7 +40,6 @@ pair<bool, int> ServerCommunication::create_newsgroup(const string& name) {
 		vector<MessageParam> reply_params = reply.getParameters();
 		success = reply_params[0].numericValue == Protocol::ANS_ACK;
 		if (success) {
-			group_nbr = find_group_nbr(name);
 		}
 	} else {
 		protocol_err("COM_CREATE_NG", "ANS_CREATE_NG", reply.getType());
@@ -69,9 +47,8 @@ pair<bool, int> ServerCommunication::create_newsgroup(const string& name) {
 	return make_pair(success, group_nbr);
 }
 
-bool ServerCommunication::delete_newsgroup(const string& id) {
+bool ServerCommunication::delete_newsgroup(const int group_nbr) {
 	bool success = false;
-	int group_nbr = find_group_nbr(id);
 
 	Message msg(Protocol::COM_DELETE_NG, {MessageParam(Protocol::PAR_NUM, group_nbr, "")});
 	msg_handler.send_message(con, msg);
@@ -86,8 +63,7 @@ bool ServerCommunication::delete_newsgroup(const string& id) {
 	return success;
 }
 
-pair<int, vector<pair<int, string>>> ServerCommunication::list_articles(const string& id) {
-	int group_nbr = find_group_nbr(id);
+pair<int, vector<pair<int, string>>> ServerCommunication::list_articles(const int group_nbr) {
 
 	Message msg(Protocol::COM_LIST_ART, {MessageParam(Protocol::PAR_NUM, group_nbr, "")});
 	msg_handler.send_message(con, msg);
@@ -100,9 +76,7 @@ pair<int, vector<pair<int, string>>> ServerCommunication::list_articles(const st
 			for (int i = 1; i != reply_params[1].numericValue; i+=2) {
 				ret.push_back(make_pair(reply_params[i].numericValue, reply_params[i+1].textValue));
 			}
-		} else {
-			group_nbr = -1;
-		}
+		} 
 	} else {
 		protocol_err("COM_LIST_ART", "ANS_LIST_ART", reply.getType());
 	}

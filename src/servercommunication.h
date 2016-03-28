@@ -32,7 +32,7 @@ public:
 	 * Deletes a newsgroup on the server with the supplied [name | number]
 	 * Returns the status (success/fail) as string
 	 */
-	bool delete_newsgroup(const std::string& id);
+	bool delete_newsgroup(const int group_nbr);
 
 	/**
 	 * List the articles in newsgroup with id.
@@ -40,7 +40,7 @@ public:
 	 * Vector is empty and group_nbr is -1  if the group cant be found.
 	 * Returns pair<group number, pair<article number, article string>>
 	 */
-	std::pair<int, std::vector<std::pair<int, std::string>>> list_articles(const std::string& id);
+	std::pair<int, std::vector<std::pair<int, std::string>>> list_articles(const int group_nbr);
 	
 	/**
  	 * Creates an article with the supplied content in the newsgroup identified by group_nbr
@@ -63,12 +63,10 @@ public:
 private:
 	const std::shared_ptr<Connection>& con;
 	MessageHandler msg_handler;
-	bool is_number(const std::string& s);
 	/**
 	 * Utility function to convert either a newsgroup name or newsgroup number to a group nbr
 	 * for sending to the server.
 	 */
-	int find_group_nbr(const std::string& s);
 
 	void protocol_err(const std::string& sent, const std::string& expected, const int received) {
 		std::cerr << "Protocol error: Sent " << sent << ", expected " << expected << ", received " << received << std::endl;
