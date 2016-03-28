@@ -6,6 +6,7 @@
 #include "inewsgroup.h"
 #include "iarticle.h"
 
+class InMemoryArticle;
 class InMemoryNewsgroup : INewsgroup {
 public:
 	InMemoryNewsgroup(const int &id, const std::string &title);
@@ -29,7 +30,7 @@ public:
 private:
 	const int id;
 	std::string title;
-	std::map<int, std::shared_ptr<IArticle>> articles;
+	std::map<int, std::shared_ptr<InMemoryArticle>> articles;
 	std::set<int> used_article_ids;
 };
 

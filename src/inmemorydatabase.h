@@ -6,6 +6,7 @@
 #include "idatabase.h"
 #include "inewsgroup.h"
 
+class InMemoryNewsGroup;
 class InMemoryDatabase : IDatabase {
 public:
 	~IDatabase() { };
@@ -29,7 +30,7 @@ public:
 
 private:
 	std::set<int> used_newsgroup_ids;
-	std::map<int, std::shared_ptr<INewsgroup>> newsgroups;
+	std::map<int, std::shared_ptr<InMemoryNewsgroup>> newsgroups;
 };
 
 

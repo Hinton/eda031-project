@@ -1,3 +1,4 @@
+#include <memory>
 #include "inmemorynewsgroup.h"
 #include "inmemoryarticle.h"
 #include "idusedexception.h"
@@ -11,7 +12,7 @@ std::shared_ptr<IArticle> InMemoryNewsgroup::add_article(const int &id, const st
 	if (used_article_ids.find(id) == used_article_ids.end()) {
 		articles.emplace(new InMemoryArticle(id, title, author, text));
 		used_article_ids.insert(id);
-		return articles.at(id);
+		return dynamic_pointer_cast<IArticle>(articles.at(id));
 	}
 	else {
 		throw IDUsedException("Article ID already used.");
@@ -19,13 +20,13 @@ std::shared_ptr<IArticle> InMemoryNewsgroup::add_article(const int &id, const st
 }
 
 std::shared_ptr<IArticle> InMemoryNewsgroup::get_article(const int &id) {
-	return articles.at(id);
+	return dynamic_pointer_cast<IArticle>(articles.at(id));
 }
 
 std::vector<std::shared_ptr<IArticle>> InMemoryNewsgroup::get_articles() {
 	vector<shared_ptr<IArticle>> ret;
 	for (auto it = articles.begin(); it != articles.end(); ++it) {
-		ret.push_back(it->second);
+		ret.push_back(dynamic_pointer_cast<IArticle>(it->second));
 	}
 	return ret;
 }
