@@ -10,7 +10,7 @@ InMemoryNewsgroup::InMemoryNewsgroup(const int &id, const std::string &title) : 
 std::shared_ptr<IArticle> InMemoryNewsgroup::add_article(const int &id, const std::string &title,
 														 const std::string &author, const std::string &text) {
 	if (used_article_ids.find(id) == used_article_ids.end()) {
-		articles.emplace(new InMemoryArticle(id, title, author, text));
+		articles.insert({id, shared_ptr<InMemoryArticle>(new InMemoryArticle(id, title, author, text))});
 		used_article_ids.insert(id);
 		return dynamic_pointer_cast<IArticle>(articles.at(id));
 	}
@@ -23,7 +23,7 @@ std::shared_ptr<IArticle> InMemoryNewsgroup::get_article(const int &id) {
 	return dynamic_pointer_cast<IArticle>(articles.at(id));
 }
 
-std::vector<std::shared_ptr<IArticle>> InMemoryNewsgroup::get_articles() {
+InMemoryNewsgroup::article_vec InMemoryNewsgroup::get_articles() {
 	vector<shared_ptr<IArticle>> ret;
 	for (auto it = articles.begin(); it != articles.end(); ++it) {
 		ret.push_back(dynamic_pointer_cast<IArticle>(it->second));

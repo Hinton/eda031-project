@@ -4,19 +4,23 @@
 
 using namespace std;
 
-vector<shared_ptr<INewsgroup>> InMemoryDatabase::get_newsgroups() {
-	return vector<shared_ptr<INewsgroup>>((newsgroups.begin()), newsgroups.end());
+InMemoryDatabase::newsgroup_vec InMemoryDatabase::get_newsgroups() {
+	newsgroup_vec ret;
+	for (auto it = newsgroups.begin(); it != newsgroups.end(); ++it) {
+		ret.push_back(dynamic_pointer_cast<INewsgroup>(it->second));
+	}
+	return ret;
 }
 
 std::shared_ptr<INewsgroup> InMemoryDatabase::get_newsgroup(const int &id) {
-	return newsgroups.at(id);
+	return dynamic_pointer_cast<INewsgroup>(newsgroups.at(id));
 }
 
 std::shared_ptr<INewsgroup> InMemoryDatabase::add_newsgroup(const int &id, const std::string &title) {
 	if (used_newsgroup_ids.find(id) == used_newsgroup_ids.end()) {
-		newsgroups.emplace(new InMemoryNewsgroup(id, title)); // Unsure if this use of emplace is ok
+		newsgroups.insert({id, shared_ptr<InMemoryNewsgroup>(new InMemoryNewsgroup(id, title))});
 		used_newsgroup_ids.insert(id);
-		return newsgroups.at(id);
+		return dynamic_pointer_cast<INewsgroup>(newsgroups.at(id));
 	}
 	else {
 		throw IDUsedException("Newsgroup ID already used.");
@@ -32,7 +36,7 @@ bool InMemoryDatabase::remove_newsgroup(const int &id) {
 	return success;
 }
 
-std::vector<std::shared_ptr<IArticle>> InMemoryDatabase::get_articles(const int &newsgroup_id) {
+InMemoryDatabase::article_vec InMemoryDatabase::get_articles(const int &newsgroup_id) {
 	return newsgroups.at(newsgroup_id)->get_articles();
 }
 

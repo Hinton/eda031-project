@@ -6,8 +6,11 @@
 #include "inewsgroup.h"
 #include "iarticle.h"
 
+class InMemoryDatabase;
 class InMemoryArticle;
-class InMemoryNewsgroup : INewsgroup {
+
+class InMemoryNewsgroup : public INewsgroup {
+	using article_vec = std::vector<std::shared_ptr<IArticle>>;
 public:
 	InMemoryNewsgroup(const int &id, const std::string &title);
 
@@ -23,14 +26,16 @@ public:
 
 	std::shared_ptr<IArticle> get_article(const int &id);
 
-	std::vector<std::shared_ptr<IArticle>> get_articles();
+	article_vec get_articles();
 
 	bool remove_article(const int &id);
 
 private:
+	using article_map = std::map<int, std::shared_ptr<InMemoryArticle>>;
+
 	const int id;
 	std::string title;
-	std::map<int, std::shared_ptr<InMemoryArticle>> articles;
+	article_map articles;
 	std::set<int> used_article_ids;
 };
 

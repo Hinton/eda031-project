@@ -6,12 +6,13 @@
 #include "idatabase.h"
 #include "inewsgroup.h"
 
-class InMemoryNewsGroup;
-class InMemoryDatabase : IDatabase {
-public:
-	~IDatabase() { };
+class InMemoryNewsgroup;
 
-	std::vector<std::shared_ptr<INewsgroup>> get_newsgroups();
+class InMemoryDatabase : public IDatabase {
+	using article_vec = std::vector<std::shared_ptr<IArticle>>;
+	using newsgroup_vec = std::vector<std::shared_ptr<INewsgroup>>;
+public:
+	newsgroup_vec get_newsgroups();
 
 	std::shared_ptr<INewsgroup> get_newsgroup(const int &id);
 
@@ -19,7 +20,7 @@ public:
 
 	bool remove_newsgroup(const int &id);
 
-	std::vector<std::shared_ptr<IArticle>> get_articles(const int &newsgroup_id);
+	article_vec get_articles(const int &newsgroup_id);
 
 	std::shared_ptr<IArticle> get_article(const int &newsgroup_id, const int &article_id);
 
@@ -29,8 +30,10 @@ public:
 	bool remove_article(const int &newsgroup_id, const int &article_id);
 
 private:
+	using newsgroup_map = std::map<int, std::shared_ptr<InMemoryNewsgroup>>;
+
 	std::set<int> used_newsgroup_ids;
-	std::map<int, std::shared_ptr<InMemoryNewsgroup>> newsgroups;
+	newsgroup_map newsgroups;
 };
 
 

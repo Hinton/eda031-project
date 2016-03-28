@@ -4,7 +4,7 @@
 #include <string>
 #include "iarticle.h"
 
-class InMemoryArticle : IArticle {
+class InMemoryArticle : public IArticle {
 	//friend bool articleCompare(std::shared_ptr<InMemoryArticle>, std::shared_ptr<InMemoryArticle>);
 public:
 	InMemoryArticle(const int &id, const std::string title, const std::string author, const std::string text);
