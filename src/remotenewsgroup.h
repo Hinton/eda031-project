@@ -10,7 +10,7 @@
 
 class RemoteNewsgroup : public INewsgroup {
 public:
-	RemoteNewsgroup(const std::shared_ptr<ServerCommunication>& scom, int id, std::string title) : scom(scom), id(id), title(title) {};
+	RemoteNewsgroup(const std::shared_ptr<ServerCommunication>& scom, const std::shared_ptr<RemoteDatabase> rdb, int id, std::string title) : scom(scom), rdb(rdb), id(id), title(title) {};
 	~RemoteNewsgroup() = default;
 
 	int get_id();
@@ -19,14 +19,15 @@ public:
 	void set_title(const std::string &title);
 
 	std::shared_ptr<IArticle> get_article(const int &id);
-	std::shared_ptr<IArticle> add_article(const int &id, const std::string &title,
+	std::shared_ptr<IArticle> create_article(const std::string &title,
 		const std::string &author, const std::string &text);
 
-	std::vector<std::shared_ptr<IArticle>> get_articles();
+	std::vector<std::shared_ptr<IArticle>> list_articles();
 	bool remove_article(const int &id);
 
 private:
 	std::shared_ptr<ServerCommunication> scom;
+	std::shared_ptr<RemoteDatabase> rdb;
 	int id;
 	std::string title;
 };

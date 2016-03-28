@@ -1,5 +1,6 @@
 #include "servercommunication.h"
 #include "protocol.h"
+#include "database_exceptions.h"
 
 #include <cctype> // isdigit
 #include <algorithm> // find_if
@@ -121,9 +122,9 @@ string ServerCommunication::delete_article(const int group_nbr, const int art_nb
 		if (reply_params[0].numericValue == Protocol::ANS_ACK) {
 			result = "Success";
 		} else if (reply_params[1].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
-			result = "Newsgoup does not exist";
+			throw group_not_found();
 		} else {
-			result = "Artcile does not exist";
+			throw article_not_found();
 		}
 	} else {
 		protocol_err("COM_DELETE_ART", "ANS_DELETE_ART", reply.getType());

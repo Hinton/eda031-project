@@ -18,12 +18,12 @@ public:
 
 	virtual void set_title(const std::string &title) = 0;
 
-	virtual std::shared_ptr<IArticle> add_article(const int &id, const std::string &title,
-												  const std::string &author, const std::string &text) = 0;
+	virtual std::shared_ptr<IArticle> create_article(const std::string &title,
+													 const std::string &author, const std::string &text) = 0;
 
 	virtual std::shared_ptr<IArticle> get_article(const int &id) = 0;
 
-	virtual std::vector<std::shared_ptr<IArticle>> get_articles() = 0;
+	virtual std::vector<std::shared_ptr<IArticle>> list_articles() = 0;
 
 	virtual bool remove_article(const int &id) = 0;
 

@@ -1,10 +1,9 @@
 #include "inmemorydatabase.h"
 #include "inmemorynewsgroup.h"
-#include "idusedexception.h"
 
 using namespace std;
 
-InMemoryDatabase::newsgroup_vec InMemoryDatabase::get_newsgroups() {
+InMemoryDatabase::newsgroup_vec InMemoryDatabase::list_newsgroups() {
 	newsgroup_vec ret;
 	for (auto it = newsgroups.begin(); it != newsgroups.end(); ++it) {
 		ret.push_back(dynamic_pointer_cast<INewsgroup>(it->second));
@@ -16,15 +15,10 @@ std::shared_ptr<INewsgroup> InMemoryDatabase::get_newsgroup(const int &id) {
 	return dynamic_pointer_cast<INewsgroup>(newsgroups.at(id));
 }
 
-std::shared_ptr<INewsgroup> InMemoryDatabase::add_newsgroup(const int &id, const std::string &title) {
-	if (used_newsgroup_ids.find(id) == used_newsgroup_ids.end()) {
-		newsgroups.insert({id, shared_ptr<InMemoryNewsgroup>(new InMemoryNewsgroup(id, title))});
-		used_newsgroup_ids.insert(id);
-		return dynamic_pointer_cast<INewsgroup>(newsgroups.at(id));
-	}
-	else {
-		throw IDUsedException("Newsgroup ID already used.");
-	}
+std::shared_ptr<INewsgroup> InMemoryDatabase::create_newsgroup(const std::string &title) {
+	int id = get_newsgroup_id();
+	newsgroups.insert({id, shared_ptr<InMemoryNewsgroup>(new InMemoryNewsgroup(id, title))});
+	return dynamic_pointer_cast<INewsgroup>(newsgroups.at(id));
 }
 
 bool InMemoryDatabase::remove_newsgroup(const int &id) {
@@ -36,18 +30,18 @@ bool InMemoryDatabase::remove_newsgroup(const int &id) {
 	return success;
 }
 
-InMemoryDatabase::article_vec InMemoryDatabase::get_articles(const int &newsgroup_id) {
-	return newsgroups.at(newsgroup_id)->get_articles();
+InMemoryDatabase::article_vec InMemoryDatabase::list_articles(const int &newsgroup_id) {
+	return newsgroups.at(newsgroup_id)->list_articles();
 }
 
 std::shared_ptr<IArticle> InMemoryDatabase::get_article(const int &newsgroup_id, const int &article_id) {
 	return newsgroups.at(newsgroup_id)->get_article(article_id);
 }
 
-std::shared_ptr<IArticle> InMemoryDatabase::add_article(const int &newsgroup_id, const int &article_id,
-														const std::string &title, const std::string &author,
-														const std::string &text) {
-	return newsgroups.at(newsgroup_id)->add_article(article_id, title, author, text);
+std::shared_ptr<IArticle> InMemoryDatabase::create_article(const int &newsgroup_id, const std::string &title,
+														   const std::string &author, const std::string &text) {
+
+	return newsgroups.at(newsgroup_id)->create_article(title, author, text);
 }
 
 bool InMemoryDatabase::remove_article(const int &newsgroup_id, const int &article_id) {

@@ -22,22 +22,18 @@ void RemoteNewsgroup::set_title(const std::string &title) {
 }
 
 std::shared_ptr<IArticle> RemoteNewsgroup::get_article(const int &id) {
-	//TODO: Implement
-	throw func_not_implemented();
+	throw func_not_supported();
 }
 
-std::shared_ptr<IArticle> RemoteNewsgroup::add_article(const int &id, const std::string &title,
+std::shared_ptr<IArticle> RemoteNewsgroup::create_article(const std::string &title,
 	const std::string &author, const std::string &text) {
-	//TODO: Implement
-	throw func_not_implemented();
+	return rdb->create_article(this->id, title, author, text);
 }
 
-std::vector<std::shared_ptr<IArticle>> RemoteNewsgroup::get_articles() {
-	//TODO: Implement
-	throw func_not_implemented();	
+std::vector<std::shared_ptr<IArticle>> RemoteNewsgroup::list_articles() {
+	return rdb->list_articles(this->id);
 }
 
 bool RemoteNewsgroup::remove_article(const int &article_id) {
-	//TODO: Implement
-	throw func_not_implemented();
+	return rdb->delete_article(this->id, article_id);
 }
