@@ -24,7 +24,7 @@ public:
 	virtual std::shared_ptr<IArticle> get_article(const int &newsgroup_id, const int &article_id);
 
 	virtual std::shared_ptr<IArticle> add_article(const int &id, const std::string &title,
-    const std::string &author, const std::String &text);
+    const std::string &author, const std::string &text);
 
 	virtual bool remove_article(const int &newsgroup_id, const int &article_id);
 

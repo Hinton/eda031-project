@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "iarticle.h"
 
 class IArticle;
 class INewsgroup {
