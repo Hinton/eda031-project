@@ -16,7 +16,7 @@ public:
 	std::vector<std::shared_ptr<INewsgroup>> list_newsgroups();
 	std::shared_ptr<INewsgroup> get_newsgroup(const int& id);
 	std::shared_ptr<INewsgroup> create_newsgroup(const std::string &title);
-	bool remove_newsgroup(const int &id);
+	bool delete_newsgroup(const int &id);
 
 	std::vector<std::shared_ptr<IArticle>> list_articles(const int& newsgroup_id);
 	std::shared_ptr<IArticle> get_article(const int &newsgroup_id, const int &article_id);
@@ -24,7 +24,7 @@ public:
 																				const std::string &title,
 																				const std::string &author, const std::string &text);
 
-	bool remove_article(const int &newsgroup_id, const int &article_id);
+	bool delete_article(const int &newsgroup_id, const int &article_id);
 
 private: 
 	std::shared_ptr<ServerCommunication> scom;
