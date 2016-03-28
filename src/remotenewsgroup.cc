@@ -27,7 +27,7 @@ std::shared_ptr<IArticle> RemoteNewsgroup::get_article(const int &id) {
 
 std::shared_ptr<IArticle> RemoteNewsgroup::create_article(const std::string &title,
 	const std::string &author, const std::string &text) {
-	throw func_not_implemented();
+	return rdb->create_article(this->id, title, author, text);
 }
 
 std::vector<std::shared_ptr<IArticle>> RemoteNewsgroup::list_articles() {
