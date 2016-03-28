@@ -22,13 +22,11 @@ void RemoteNewsgroup::set_title(const std::string &title) {
 }
 
 std::shared_ptr<IArticle> RemoteNewsgroup::get_article(const int &id) {
-	//TODO: Implement
-	throw func_not_implemented();
+	throw func_not_supported();
 }
 
 std::shared_ptr<IArticle> RemoteNewsgroup::add_article(const int &id, const std::string &title,
 	const std::string &author, const std::string &text) {
-	//TODO: Implement
 	throw func_not_implemented();
 }
 
