@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
 		string cmd = words[0];
 		vector<string> args(words.begin()+1, words.end());
 		if (cmd == "list" && args.size() == 0) { // list newsgroups
-			for (auto &newsgroup : db->get_newsgroups()) {
+			for (auto &newsgroup : db->list_newsgroups()) {
 				cout << "Title: " << newsgroup->get_title() << endl;
 			}
 			/*vector<pair<int, string>> result = server.list_newsgroups();
