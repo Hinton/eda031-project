@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 
+class IArticle;
 class INewsgroup {
 public:
 	virtual ~INewsgroup() { };
@@ -23,7 +24,7 @@ public:
 
 	virtual std::vector<std::shared_ptr<IArticle>> get_articles();
 
-	virtual bool remove_article(const int &article_id);
+	virtual bool remove_article(const int &id);
 
 protected:
 	INewsgroup() { };

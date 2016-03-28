@@ -2,6 +2,7 @@
 #define INMEMORYNEWSGROUP_H
 
 #include <map>
+#include <set>
 #include "inewsgroup.h"
 #include "iarticle.h"
 
@@ -9,12 +10,12 @@ class InMemoryNewsgroup : INewsgroup {
 public:
 	InMemoryNewsgroup(const int &id, const std::string &title);
 
-	virtual int get_id();
+	int get_id() { return id; }
 	//virtual void setId(const int &id);
 
-	virtual std::string get_title();
+	std::string get_title() { return title; }
 
-	virtual void set_title(const std::string &title);
+	void set_title(const std::string &title) { this->title = title; }
 
 	std::shared_ptr<IArticle> add_article(const int &id, const std::string &title,
 										  const std::string &author, const std::string &text);
@@ -23,10 +24,13 @@ public:
 
 	std::vector<std::shared_ptr<IArticle>> get_articles();
 
-	bool remove_article(const int &article_id);
+	bool remove_article(const int &id);
 
 private:
-	std::map<int, IArticle> articles;
+	const int id;
+	std::string title;
+	std::map<int, std::shared_ptr<IArticle>> articles;
+	std::set<int> used_article_ids;
 };
 
 #endif

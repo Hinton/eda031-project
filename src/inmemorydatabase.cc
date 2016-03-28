@@ -1,10 +1,11 @@
 #include "inmemorydatabase.h"
 #include "inmemorynewsgroup.h"
+#include "usedidexception.h"
 
 using namespace std;
 
 vector<shared_ptr<INewsgroup>> InMemoryDatabase::get_newsgroups() {
-	return vector<shared_ptr<INewsgroup>>(newsgroups.begin(), newsgroups.end());
+	return vector<shared_ptr<INewsgroup>>((newsgroups.begin()), newsgroups.end());
 }
 
 std::shared_ptr<INewsgroup> InMemoryDatabase::get_newsgroup(const int &id) {
@@ -12,8 +13,14 @@ std::shared_ptr<INewsgroup> InMemoryDatabase::get_newsgroup(const int &id) {
 }
 
 std::shared_ptr<INewsgroup> InMemoryDatabase::add_newsgroup(const int &id, const std::string &title) {
-	newsgroups.emplace(new InMemoryNewsgroup(id, title)); // Unsure if this use of emplace is ok
-	return newsgroups.at(id);
+	if (used_newsgroup_ids.find(id) == used_newsgroup_ids.end()) {
+		newsgroups.emplace(new InMemoryNewsgroup(id, title)); // Unsure if this use of emplace is ok
+		used_newsgroup_ids.insert(id);
+		return newsgroups.at(id);
+	}
+	else {
+		throw UsedIDException("Newsgroup ID already used.");
+	}
 }
 
 bool InMemoryDatabase::remove_newsgroup(const int &id) {

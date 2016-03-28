@@ -2,6 +2,7 @@
 #define INMEMORYDATABASE_H
 
 #include <map>
+#include <set>
 #include "idatabase.h"
 #include "inewsgroup.h"
 
@@ -27,6 +28,7 @@ public:
 	bool remove_article(const int &newsgroup_id, const int &article_id);
 
 private:
+	std::set<int> used_newsgroup_ids;
 	std::map<int, std::shared_ptr<INewsgroup>> newsgroups;
 };
 
