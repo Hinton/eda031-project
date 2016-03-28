@@ -11,7 +11,7 @@
 
 using namespace std;
 
-vector<shared_ptr<INewsgroup>> RemoteDatabase::get_newsgroups() {
+vector<shared_ptr<INewsgroup>> RemoteDatabase::list_newsgroups() {
 	vector<pair<int, string>> ngrps = scom->list_newsgroups();
 	vector<shared_ptr<INewsgroup>> to_return(ngrps.size());
 	transform (ngrps.begin(), ngrps.end(), to_return.begin(), [&](pair<int, string> grp) { 
@@ -23,7 +23,7 @@ shared_ptr<INewsgroup> RemoteDatabase::get_newsgroup(const int& id) {
 	throw func_not_implemented();
 }
 
-shared_ptr<INewsgroup> RemoteDatabase::add_newsgroup(const int& id, const string &title) {
+shared_ptr<INewsgroup> RemoteDatabase::create_newsgroup(const string &title) {
 	throw func_not_implemented();	
 }
 
@@ -31,7 +31,7 @@ bool RemoteDatabase::remove_newsgroup(const int &id) {
 	throw func_not_implemented();
 }
 
-vector<shared_ptr<IArticle>> RemoteDatabase::get_articles(const int& newsgroup_id) {
+vector<shared_ptr<IArticle>> RemoteDatabase::list_articles(const int& newsgroup_id) {
 	throw func_not_implemented();
 }
 
@@ -39,7 +39,7 @@ shared_ptr<IArticle> RemoteDatabase::get_article(const int &newsgroup_id, const 
 	throw func_not_implemented();
 }
 
-shared_ptr<IArticle> RemoteDatabase::add_article(const int &newsgroup_id, const int &article_id,
+shared_ptr<IArticle> RemoteDatabase::create_article(const int &newsgroup_id,
 	const string &title, const string &author, const string &text) {	
 	throw func_not_implemented();
 }
