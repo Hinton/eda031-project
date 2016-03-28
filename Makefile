@@ -30,7 +30,7 @@ libclientserver.a: connection.o server.o
 
 server: memoryserver.o server.o connection.o messagehandler.o message.o
 
-client: connection.o servercommunication.o messagehandler.o message.o 
+client: connection.o servercommunication.o messagehandler.o message.o remotedatabase.o remotenewsgroup.o remotearticle.o
 
 database-test: inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o
 

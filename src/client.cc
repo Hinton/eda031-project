@@ -1,6 +1,10 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
 #include "servercommunication.h"
+#include "remotedatabase.h"
+#include "idatabase.h"
+#include "inewsgroup.h"
+#include "iarticle.h"
 
 #include <iterator> // for istream_iterator & back_inserter
 #include <string>
@@ -87,6 +91,8 @@ int main(int argc, char* argv[]) {
 	ServerCommunication server(con);
 	cout << "news>";
 
+	RemoteDatabase *db = new RemoteDatabase(shared_ptr<ServerCommunication>(&server));
+
 	string line;
 	int current_group = 0;
 	bool is_in_group = false; // Whether or not current_group can be used
@@ -100,12 +106,15 @@ int main(int argc, char* argv[]) {
 		string cmd = words[0];
 		vector<string> args(words.begin()+1, words.end());
 		if (cmd == "list" && args.size() == 0) { // list newsgroups
-			vector<pair<int, string>> result = server.list_newsgroups();
+			for (auto &newsgroup : db->get_newsgroups()) {
+				cout << "Title: " << newsgroup->get_title() << endl;
+			}
+			/*vector<pair<int, string>> result = server.list_newsgroups();
 			is_in_group = false;
 			cout << "Available newsgroups:" << endl;
 			for (auto it = result.begin(); it != result.end(); ++it) {
 				cout << it->first << ". " << it->second << endl;
-			}	
+			}	*/
 		} else if (cmd == "list" && args.size() == 1) { // list articles
 			pair<int, vector<pair<int, string>>> res = server.list_articles(args[0]);
 			current_group = res.first;
