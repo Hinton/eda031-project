@@ -13,19 +13,31 @@ public:
 	}
 };
 
+class group_not_found : public std::exception
+{
+public:
+	virtual const char* what() const throw()
+	{
+		return "The newsgroup you are searching for could not be found.";
+	}
+};
+
+class article_not_found : public std::exception
+{
+public:
+	virtual const char* what() const throw()
+	{
+		return "The article you are searching for could not be found.";
+	}
+};
+
 class obj_not_found : public std::exception
 {
 public:
-	obj_not_found(const std::string &msg) : msg(msg) {};
 	virtual const char* what() const throw()
 	{
-		if (msg.empty())
-			return "The object you are searching for could not be found.";
-		else 
-			return msg.c_str();
+		return "[DEPRECATED; DONT USE] The object you are searching for could not be found.";
 	}
-private:
-	std::string msg;
 };
 
 class func_not_supported : public std::exception
