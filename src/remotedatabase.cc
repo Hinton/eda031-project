@@ -27,7 +27,7 @@ shared_ptr<INewsgroup> RemoteDatabase::create_newsgroup(const string &title) {
 	throw func_not_implemented();	
 }
 
-bool RemoteDatabase::remove_newsgroup(const int &id) {
+bool RemoteDatabase::delete_newsgroup(const int &id) {
 	throw func_not_implemented();
 }
 
@@ -45,6 +45,6 @@ shared_ptr<IArticle> RemoteDatabase::create_article(const int &newsgroup_id,
 }
 
 
-bool RemoteDatabase::remove_article(const int &newsgroup_id, const int &article_id) {
+bool RemoteDatabase::delete_article(const int &newsgroup_id, const int &article_id) {
 	throw func_not_implemented();
 }

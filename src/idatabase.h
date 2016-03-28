@@ -18,7 +18,7 @@ public:
 
 	virtual std::shared_ptr<INewsgroup> create_newsgroup(const std::string &title) = 0;
 
-	virtual bool remove_newsgroup(const int &id) = 0;
+	virtual bool delete_newsgroup(const int &id) = 0;
 
 	virtual std::vector<std::shared_ptr<IArticle>> list_articles(const int &newsgroup_id) = 0;
 
@@ -28,7 +28,7 @@ public:
 												  const std::string &title,
 												  const std::string &author, const std::string &text) = 0;
 
-	virtual bool remove_article(const int &newsgroup_id, const int &article_id) = 0;
+	virtual bool delete_article(const int &newsgroup_id, const int &article_id) = 0;
 
 protected:
 	IDatabase() { };
