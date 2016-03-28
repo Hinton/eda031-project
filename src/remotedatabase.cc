@@ -24,7 +24,12 @@ shared_ptr<INewsgroup> RemoteDatabase::get_newsgroup(const int& id) {
 }
 
 shared_ptr<INewsgroup> RemoteDatabase::create_newsgroup(const string &title) {
-	throw func_not_implemented();	
+	pair<bool, int> res = scom->create_newsgroup(title);
+	if (!res.first) {
+		throw obj_already_exists();
+	} else {
+		return shared_ptr<INewsgroup>(new RemoteNewsgroup(scom, res.second, title));
+	}
 }
 
 bool RemoteDatabase::remove_newsgroup(const int &id) {
