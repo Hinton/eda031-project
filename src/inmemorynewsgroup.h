@@ -21,22 +21,24 @@ public:
 
 	void set_title(const std::string &title) { this->title = title; }
 
-	std::shared_ptr<IArticle> add_article(const int &id, const std::string &title,
-										  const std::string &author, const std::string &text);
+	std::shared_ptr<IArticle> create_article(const std::string &title,
+											 const std::string &author, const std::string &text);
 
 	std::shared_ptr<IArticle> get_article(const int &id);
 
-	article_vec get_articles();
+	article_vec list_articles();
 
 	bool remove_article(const int &id);
 
 private:
 	using article_map = std::map<int, std::shared_ptr<InMemoryArticle>>;
 
+	int get_article_id() { return free_article_id++; }
+
 	const int id;
 	std::string title;
 	article_map articles;
-	std::set<int> used_article_ids;
+	int free_article_id;
 };
 
 #endif
