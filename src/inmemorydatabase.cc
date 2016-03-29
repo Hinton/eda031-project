@@ -21,7 +21,7 @@ std::shared_ptr<INewsgroup> InMemoryDatabase::create_newsgroup(const std::string
 	return dynamic_pointer_cast<INewsgroup>(newsgroups.at(id));
 }
 
-bool InMemoryDatabase::remove_newsgroup(const int &id) {
+bool InMemoryDatabase::delete_newsgroup(const int &id) {
 	bool success = false;
 	if (newsgroups.find(id) != newsgroups.end()) {
 		newsgroups.erase(id);
@@ -44,7 +44,7 @@ std::shared_ptr<IArticle> InMemoryDatabase::create_article(const int &newsgroup_
 	return newsgroups.at(newsgroup_id)->create_article(title, author, text);
 }
 
-bool InMemoryDatabase::remove_article(const int &newsgroup_id, const int &article_id) {
+bool InMemoryDatabase::delete_article(const int &newsgroup_id, const int &article_id) {
 	return newsgroups.at(newsgroup_id)->remove_article(article_id);
 }
 
