@@ -36,7 +36,7 @@ private:
 	using newsgroup_map = std::map<int, std::shared_ptr<InMemoryNewsgroup>>;
 	newsgroup_map newsgroups;
 
-	std::map<std::string, int> title_id;
+	std::set<std::string> newsgroup_titles;
 
 	int free_newsgroup_id;
 };

@@ -13,6 +13,13 @@ public:
 	}
 };
 
+class group_already_exists : public std::exception {
+public:
+	virtual const char *what() const throw() {
+		return "The newsgroup cannot be created because it already exists.";
+	}
+};
+
 class group_not_found : public std::exception
 {
 public:

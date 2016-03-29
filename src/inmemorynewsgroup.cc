@@ -1,4 +1,5 @@
 #include <memory>
+#include "database_exceptions.h"
 #include "inmemorynewsgroup.h"
 #include "inmemoryarticle.h"
 
@@ -14,7 +15,12 @@ std::shared_ptr<IArticle> InMemoryNewsgroup::create_article(const std::string &t
 }
 
 std::shared_ptr<IArticle> InMemoryNewsgroup::get_article(const int &id) {
-	return dynamic_pointer_cast<IArticle>(articles.at(id));
+	try {
+		return dynamic_pointer_cast<IArticle>(articles.at(id));
+	}
+	catch (out_of_range) {
+		throw article_not_found();
+	}
 }
 
 InMemoryNewsgroup::article_vec InMemoryNewsgroup::list_articles() {
@@ -26,10 +32,13 @@ InMemoryNewsgroup::article_vec InMemoryNewsgroup::list_articles() {
 }
 
 bool InMemoryNewsgroup::remove_article(const int &id) {
-	bool success = false;
+	bool success = false; // Not used, change to void?
 	if (articles.find(id) != articles.end()) {
 		articles.erase(id);
 		success = true;
+	}
+	else {
+		throw article_not_found();
 	}
 	return success;
 }
