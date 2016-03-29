@@ -33,7 +33,7 @@ public:
 private:
 	using article_map = std::map<int, std::shared_ptr<InMemoryArticle>>;
 
-	int get_article_id() { return free_article_id++; }
+	int new_article_id() { return free_article_id++; }
 
 	const int id;
 	std::string title;

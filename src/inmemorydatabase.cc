@@ -16,14 +16,23 @@ std::shared_ptr<INewsgroup> InMemoryDatabase::get_newsgroup(const int &id) {
 }
 
 std::shared_ptr<INewsgroup> InMemoryDatabase::create_newsgroup(const std::string &title) {
-	int id = get_newsgroup_id();
-	newsgroups.insert({id, shared_ptr<InMemoryNewsgroup>(new InMemoryNewsgroup(id, title))});
+	int id;
+	auto pair = title_id.find(title);
+	if (pair == title_id.end()) {
+		id = new_newsgroup_id();
+		newsgroups.insert({id, shared_ptr<InMemoryNewsgroup>(new InMemoryNewsgroup(id, title))});
+		title_id.emplace(title, id);
+	}
+	else {
+		id = pair->second;
+	}
 	return dynamic_pointer_cast<INewsgroup>(newsgroups.at(id));
 }
 
 bool InMemoryDatabase::delete_newsgroup(const int &id) {
 	bool success = false;
 	if (newsgroups.find(id) != newsgroups.end()) {
+		title_id.erase(newsgroups.at(id)->get_title());
 		newsgroups.erase(id);
 		success = true;
 	}

@@ -8,7 +8,7 @@ InMemoryNewsgroup::InMemoryNewsgroup(const int &id, const std::string &title) : 
 
 std::shared_ptr<IArticle> InMemoryNewsgroup::create_article(const std::string &title,
 															const std::string &author, const std::string &text) {
-	int id = get_article_id();
+	int id = new_article_id();
 	articles.insert({id, shared_ptr<InMemoryArticle>(new InMemoryArticle(id, title, author, text))});
 	return dynamic_pointer_cast<IArticle>(articles.at(id));
 }

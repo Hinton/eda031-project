@@ -31,10 +31,12 @@ public:
 	bool delete_article(const int &newsgroup_id, const int &article_id);
 
 private:
-	int get_newsgroup_id() { return free_newsgroup_id++; }
+	int new_newsgroup_id() { return free_newsgroup_id++; }
 
 	using newsgroup_map = std::map<int, std::shared_ptr<InMemoryNewsgroup>>;
 	newsgroup_map newsgroups;
+
+	std::map<std::string, int> title_id;
 
 	int free_newsgroup_id;
 };
