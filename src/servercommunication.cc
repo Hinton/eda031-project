@@ -47,7 +47,7 @@ void ServerCommunication::create_newsgroup(const string& name) {
 	}
 }
 
-bool ServerCommunication::delete_newsgroup(const int& group_nbr) {
+bool ServerCommunication::delete_newsgroup(const int group_nbr) {
 	bool success = false;
 
 	Message msg(Protocol::COM_DELETE_NG, {MessageParam(Protocol::PAR_NUM, group_nbr, "")});
@@ -63,7 +63,7 @@ bool ServerCommunication::delete_newsgroup(const int& group_nbr) {
 	return success;
 }
 
-vector<pair<int, string>> ServerCommunication::list_articles(const int& group_nbr) {
+vector<pair<int, string>> ServerCommunication::list_articles(const int group_nbr) {
 
 	Message msg(Protocol::COM_LIST_ART, {MessageParam(Protocol::PAR_NUM, group_nbr, "")});
 	msg_handler.send_message(con, msg);
@@ -85,7 +85,7 @@ vector<pair<int, string>> ServerCommunication::list_articles(const int& group_nb
 	return ret;
 }
 
-void ServerCommunication::create_article(const int& group_nbr, const string& title, const string& author, const string& text) {
+void ServerCommunication::create_article(const int group_nbr, const string& title, const string& author, const string& text) {
 	vector<MessageParam> msg_params {
 		MessageParam(Protocol::PAR_NUM, group_nbr, ""),
 		MessageParam(Protocol::PAR_STRING, title.size(), title),
@@ -106,7 +106,7 @@ void ServerCommunication::create_article(const int& group_nbr, const string& tit
 	}
 }
 
-bool ServerCommunication::delete_article(const int& group_nbr, const int& art_nbr) {
+bool ServerCommunication::delete_article(const int group_nbr, const int art_nbr) {
 	bool result = false;
 
 	vector<MessageParam> msg_params {
@@ -133,7 +133,7 @@ bool ServerCommunication::delete_article(const int& group_nbr, const int& art_nb
 }
 
 
-vector<string> ServerCommunication::get_article(const int& group_nbr, const int& art_nbr) {
+vector<string> ServerCommunication::get_article(const int group_nbr, const int art_nbr) {
 	vector<string> ret;
 
 	vector<MessageParam> msg_params {
