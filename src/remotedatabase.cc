@@ -42,7 +42,8 @@ vector<shared_ptr<IArticle>> RemoteDatabase::list_articles(const int& newsgroup_
 }
 
 shared_ptr<IArticle> RemoteDatabase::get_article(const int &newsgroup_id, const int &article_id) {
-	throw func_not_supported();
+	vector<string> res = scom->get_article(newsgroup_id, article_id);
+	return shared_ptr<RemoteArticle>(new RemoteArticle(scom, article_id, res[1], res[2], res[3]));
 }
 
 shared_ptr<IArticle> RemoteDatabase::create_article(const int &newsgroup_id,
