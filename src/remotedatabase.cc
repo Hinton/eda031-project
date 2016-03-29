@@ -25,16 +25,11 @@ shared_ptr<INewsgroup> RemoteDatabase::get_newsgroup(const int& id) {
 }
 
 shared_ptr<INewsgroup> RemoteDatabase::create_newsgroup(const string &title) {
-	pair<bool, int> res = scom->create_newsgroup(title);
-	if (!res.first) {
-		throw obj_already_exists();
-	} else {
-		return shared_ptr<INewsgroup>(new RemoteNewsgroup(scom, shared_ptr<RemoteDatabase>(this), res.second, title));
+	scom->create_newsgroup(title);
+	return shared_ptr<INewsgroup>(new RemoteNewsgroup(scom, shared_ptr<RemoteDatabase>(this), convert_group_id(title), title));
 	}
-}
 
 bool RemoteDatabase::delete_newsgroup(const int &id) {
-	//TODO: Not use to_string() ?
 	return scom->delete_newsgroup(id);
 }
 
@@ -50,14 +45,30 @@ shared_ptr<IArticle> RemoteDatabase::get_article(const int &newsgroup_id, const 
 
 shared_ptr<IArticle> RemoteDatabase::create_article(const int &newsgroup_id,
 	const string &title, const string &author, const string &text) {	
-	if (!create_article(newsgroup_id, title, author, text)) {
-		throw obj_already_exists();
-	} else {
-		return shared_ptr<IArticle>(new RemoteArticle(scom, newsgroup_id, title, author, text));
-	}
+	create_article(newsgroup_id, title, author, text);
+	return shared_ptr<IArticle>(new RemoteArticle(scom, newsgroup_id, title, author, text));
 }
 
 
 bool RemoteDatabase::delete_article(const int &newsgroup_id, const int &article_id) {
-	return scom->delete_article(newsgroup_id, article_id) == "Success";
+	return scom->delete_article(newsgroup_id, article_id);
+}
+
+
+int RemoteDatabase::convert_group_id(const string& id) {
+	int group_nbr = -1;
+	if (is_number(id)) {
+		group_nbr = stoi(id);
+	} else {
+		auto groups = list_newsgroups();
+		auto res = find_if(groups.begin(), groups.end(), [id] (shared_ptr<INewsgroup> p) { return p->get_title() == id; });
+		if (res != groups.end()) {
+			group_nbr = (*res)->get_id();
+		}
+	}
+	return group_nbr;
+}
+
+bool RemoteDatabase::is_number(const string& s)  {
+	return all_of(s.cbegin(), s.cend() , [] (char c)  { return isdigit(c); });
 }

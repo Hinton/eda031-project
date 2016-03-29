@@ -25,9 +25,11 @@ public:
 																				const std::string &author, const std::string &text);
 
 	bool delete_article(const int &newsgroup_id, const int &article_id);
-
+	
+	int convert_group_id(const std::string& id);
 private: 
 	std::shared_ptr<ServerCommunication> scom;
+	bool is_number(const std::string& s);
 };
 
 

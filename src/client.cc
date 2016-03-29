@@ -1,6 +1,7 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
 #include "servercommunication.h"
+#include "database_exceptions.h"
 #include "remotedatabase.h"
 #include "idatabase.h"
 #include "inewsgroup.h"
@@ -16,25 +17,8 @@
 
 using namespace std;
 
-bool is_number(const string& s)  {
-	return all_of(s.cbegin(), s.cend() , [] (char c)  { return isdigit(c); });
-}
-
-int find_group_nbr(shared_ptr<RemoteDatabase> db, const string& id) {
-	int group_nbr = -1;
-	if (is_number(id)) {
-		group_nbr = stoi(id);
-	} else {
-		auto groups = db->list_newsgroups();
-		auto res = find_if(groups.begin(), groups.end(), [id] (shared_ptr<INewsgroup> p) { return p->get_title() == id; });
-		if (res != groups.end()) {
-			group_nbr = (*res)->get_id();
-		}
-	}
-	return group_nbr;
-}
-
 void cmd_err(const string& err_msg) {
+	cerr << "Error: " << endl;
 	cerr << err_msg << endl;
 }
 
@@ -128,7 +112,7 @@ int main(int argc, char* argv[]) {
 				cout << newsgroup->get_id() <<  ". " << newsgroup->get_title() << endl;
 			}
 		} else if (cmd == "list" && args.size() == 1) { // list articles
-			current_group = find_group_nbr(db, args[0]);
+			current_group = db->convert_group_id(args[0]);
 			if (current_group != -1) {
 				for (auto &article : db->list_articles(current_group)) {
 					cout << article->get_id() <<  ". " << article->get_title() << endl;
@@ -144,7 +128,7 @@ int main(int argc, char* argv[]) {
 				current_group = res->get_id();
 				is_in_group = true;
 			} catch (exception& e) {
-				cmd_err("Failed, name already exists");
+				cmd_err(e.what());
 			}
 		} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
 
@@ -172,7 +156,7 @@ int main(int argc, char* argv[]) {
 				cmd_err("Article could not be removed");
 			}
 		} else if(cmd == "delete_grp" && args.size() == 1) { // delete newsgroup
-			int group_nbr = find_group_nbr(db, args[0]);
+			int group_nbr = db->convert_group_id(args[0]);
 			bool success = db->delete_newsgroup(group_nbr);
 			if (success) {
 				cout << "Group successfully deleted" << endl;

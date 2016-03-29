@@ -10,6 +10,8 @@ using namespace std;
 
 
 // TODO throw exceptions instead of calling protocol_err?
+//
+
 
 vector<pair<int, string>> ServerCommunication::list_newsgroups() {
 	Message msg(Protocol::COM_LIST_NG, {});
@@ -29,9 +31,7 @@ vector<pair<int, string>> ServerCommunication::list_newsgroups() {
 	return ret;
 }
 
-pair<bool, int> ServerCommunication::create_newsgroup(const string& name) {
-	int group_nbr = 0;
-	bool success = false;
+void ServerCommunication::create_newsgroup(const string& name) {
 
 	Message msg(Protocol::COM_CREATE_NG, {MessageParam(Protocol::PAR_STRING, name.size(), name)});
 	msg_handler.send_message(con, msg);
@@ -39,13 +39,12 @@ pair<bool, int> ServerCommunication::create_newsgroup(const string& name) {
 
 	if (reply.getType() == Protocol::ANS_CREATE_NG) {
 		vector<MessageParam> reply_params = reply.getParameters();
-		success = reply_params[0].numericValue == Protocol::ANS_ACK;
-		if (success) {
+		if (reply_params[0].numericValue != Protocol::ANS_ACK) {
+			throw obj_already_exists();
 		}
 	} else {
 		protocol_err("COM_CREATE_NG", "ANS_CREATE_NG", reply.getType());
 	}
-	return make_pair(success, group_nbr);
 }
 
 bool ServerCommunication::delete_newsgroup(const int group_nbr) {
@@ -64,7 +63,7 @@ bool ServerCommunication::delete_newsgroup(const int group_nbr) {
 	return success;
 }
 
-pair<int, vector<pair<int, string>>> ServerCommunication::list_articles(const int group_nbr) {
+vector<pair<int, string>> ServerCommunication::list_articles(const int group_nbr) {
 
 	Message msg(Protocol::COM_LIST_ART, {MessageParam(Protocol::PAR_NUM, group_nbr, "")});
 	msg_handler.send_message(con, msg);
@@ -77,15 +76,16 @@ pair<int, vector<pair<int, string>>> ServerCommunication::list_articles(const in
 			for (int i = 1; i != reply_params[1].numericValue; i+=2) {
 				ret.push_back(make_pair(reply_params[i].numericValue, reply_params[i+1].textValue));
 			}
-		} 
+		} else {
+			throw group_not_found();
+		}
 	} else {
 		protocol_err("COM_LIST_ART", "ANS_LIST_ART", reply.getType());
 	}
-	return make_pair(group_nbr, ret);
+	return ret;
 }
 
-bool ServerCommunication::create_article(const int group_nbr, const string& title, const string& author, const string& text) {
-	bool success = false;
+void ServerCommunication::create_article(const int group_nbr, const string& title, const string& author, const string& text) {
 	vector<MessageParam> msg_params {
 		MessageParam(Protocol::PAR_NUM, group_nbr, ""),
 		MessageParam(Protocol::PAR_STRING, title.size(), title),
@@ -96,18 +96,18 @@ bool ServerCommunication::create_article(const int group_nbr, const string& titl
 	msg_handler.send_message(con, msg);
 	Message reply = msg_handler.parse_message(con);
 
-	vector<pair<int, string>> ret;
 	if (reply.getType() == Protocol::ANS_CREATE_ART) {
 		vector<MessageParam> reply_params = reply.getParameters();
-		success = reply_params[0].numericValue == Protocol::ANS_ACK;
+		if (reply_params[0].numericValue != Protocol::ANS_ACK) {
+			throw group_not_found();
+		}
 	} else {
 		protocol_err("COM_CREATE_ART", "ANS_CREATE_ART", reply.getType());
 	}
-	return success;
 }
 
-string ServerCommunication::delete_article(const int group_nbr, const int art_nbr) {
-	string result = "";
+bool ServerCommunication::delete_article(const int group_nbr, const int art_nbr) {
+	bool result = false;
 
 	vector<MessageParam> msg_params {
 		MessageParam(Protocol::PAR_NUM, group_nbr, ""),
@@ -120,7 +120,7 @@ string ServerCommunication::delete_article(const int group_nbr, const int art_nb
 	if (reply.getType() == Protocol::ANS_DELETE_ART) {
 		vector<MessageParam> reply_params = reply.getParameters();
 		if (reply_params[0].numericValue == Protocol::ANS_ACK) {
-			result = "Success";
+			result = true;
 		} else if (reply_params[1].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
 			throw group_not_found();
 		} else {
@@ -133,10 +133,8 @@ string ServerCommunication::delete_article(const int group_nbr, const int art_nb
 }
 
 
-pair<vector<string>, string> ServerCommunication::get_article(const int group_nbr, const int art_nbr) {
+vector<string> ServerCommunication::get_article(const int group_nbr, const int art_nbr) {
 	vector<string> ret;
-	string err_msg = "";
-
 
 	vector<MessageParam> msg_params {
 		MessageParam(Protocol::PAR_NUM, group_nbr, ""),
@@ -153,12 +151,12 @@ pair<vector<string>, string> ServerCommunication::get_article(const int group_nb
 			ret.push_back(reply_params[2].textValue); // author
 			ret.push_back(reply_params[3].textValue); // text
 		} else if (reply_params[1].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
-			err_msg = "Newsgoup does not exist";
+			throw group_not_found();
 		} else {
-			err_msg = "Article does not exist";
+			throw article_not_found();
 		}
 	} else {
 		protocol_err("COM_GET_ART", "ANS_GET_ART", reply.getType());
 	}
-	return make_pair(ret, err_msg);
+	return ret;
 }
