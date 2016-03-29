@@ -27,7 +27,7 @@ shared_ptr<INewsgroup> RemoteDatabase::get_newsgroup(const int& id) {
 shared_ptr<INewsgroup> RemoteDatabase::create_newsgroup(const string &title) {
 	scom->create_newsgroup(title);
 	return shared_ptr<INewsgroup>(new RemoteNewsgroup(scom, shared_ptr<RemoteDatabase>(this), convert_group_id(title), title));
-	}
+}
 
 bool RemoteDatabase::delete_newsgroup(const int &id) {
 	return scom->delete_newsgroup(id);
@@ -53,7 +53,6 @@ shared_ptr<IArticle> RemoteDatabase::create_article(const int &newsgroup_id,
 bool RemoteDatabase::delete_article(const int &newsgroup_id, const int &article_id) {
 	return scom->delete_article(newsgroup_id, article_id);
 }
-
 
 int RemoteDatabase::convert_group_id(const string& id) {
 	int group_nbr = -1;
