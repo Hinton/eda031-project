@@ -34,13 +34,16 @@ bool RemoteDatabase::delete_newsgroup(const int &id) {
 }
 
 vector<shared_ptr<IArticle>> RemoteDatabase::list_articles(const int& newsgroup_id) {
-	//pair<group number, pair<article number, article string>>
-	//pair<int, vector<pair<int, string>>> res = scom->list_articles(newsgroup_id);
-	throw func_not_implemented();
+	vector<pair<int, string>> articles = scom->list_articles(newsgroup_id);
+	vector<shared_ptr<IArticle>> to_return(articles.size());
+	transform (articles.begin(), articles.end(), to_return.begin(), [&](pair<int, string> article) { 
+		return shared_ptr<RemoteArticle>(new RemoteArticle(scom, article.first, article.second, "", "")); });
+	return to_return;
 }
 
 shared_ptr<IArticle> RemoteDatabase::get_article(const int &newsgroup_id, const int &article_id) {
-	throw func_not_supported();
+	vector<string> res = scom->get_article(newsgroup_id, article_id);
+	return shared_ptr<RemoteArticle>(new RemoteArticle(scom, article_id, res[1], res[2], res[3]));
 }
 
 shared_ptr<IArticle> RemoteDatabase::create_article(const int &newsgroup_id,
