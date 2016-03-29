@@ -97,7 +97,9 @@ void MemoryServer::run() {
 				Message response(Protocol::ANS_CREATE_NG, params);
 				parser.send_message(conn, response);
 
-			} else if (cmd == ) else {
+			} else if (cmd == Protocol::COM_DELETE_NG) {
+				
+			} else {
 				cerr << "UNKNOWN COMMAND";
 				throw ConnectionClosedException();
 			}
