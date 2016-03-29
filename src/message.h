@@ -20,10 +20,14 @@ struct MessageParam {
 
 class Message {
 public:
-    Message(int command, std::vector<MessageParam> parameters);
+    Message(int command);
+	Message(int command, std::vector <MessageParam> parameters);
 
-    int getType();
+	int getType();
     std::vector<MessageParam> getParameters();
+	void add_param(MessageParam param);
+	void add_string_param(std::string value);
+	void add_number_param(int value);
 
 private:
     int command;

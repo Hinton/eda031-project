@@ -49,29 +49,14 @@ void MemoryServer::run() {
 
 				auto newsgroups = database->list_newsgroups();
 
-				vector<MessageParam> params;
-
-				// Number of groups
-				MessageParam p1;
-				p1.requestType = Protocol::PAR_NUM;
-				p1.numericValue = newsgroups.size();
-				params.push_back(p1);
+				Message response(Protocol::ANS_LIST_NG);
+				response.add_number_param(newsgroups.size());
 
 				for (auto it = newsgroups.begin(); it != newsgroups.end(); it++) {
-
-					MessageParam id;
-					id.requestType = Protocol::PAR_NUM;
-					id.numericValue = (*it)->get_id();
-					params.push_back(id);
-
-					MessageParam title;
-					title.requestType = Protocol::PAR_STRING;
-					title.textValue = (*it)->get_title();
-					params.push_back(title);
-
+					response.add_number_param((*it)->get_id());
+					response.add_string_param((*it)->get_title());
 				}
 
-				Message response(Protocol::ANS_LIST_NG, params);
 				parser.send_message(conn, response);
 
 			} else if (cmd == Protocol::COM_CREATE_NG) {
@@ -80,11 +65,11 @@ void MemoryServer::run() {
 				string name = p[0].textValue;
 				database->create_newsgroup(name);
 
-				vector<MessageParam> params;
+				Message response(Protocol::ANS_CREATE_NG);
 
 				MessageParam ack;
 				ack.requestType = Protocol::ANS_ACK;
-				params.push_back(ack);
+				response.add_param(ack);
 
 				// TODO: Validate if the nwesgroup was created?
 				/*
@@ -94,7 +79,6 @@ void MemoryServer::run() {
 				params.push_back(p1);
 				 */
 
-				Message response(Protocol::ANS_CREATE_NG, params);
 				parser.send_message(conn, response);
 
 			} else if (cmd == Protocol::COM_DELETE_NG) {
@@ -103,19 +87,18 @@ void MemoryServer::run() {
 
 				bool success = database->delete_newsgroup(id);
 
-				vector<MessageParam> params;
+				Message response(Protocol::ANS_DELETE_NG);
 
 				if (success) {
 					MessageParam ack;
 					ack.requestType = Protocol::ANS_ACK;
-					params.push_back(ack);
+					response.add_param(ack);
 				} else {
 					MessageParam nak;
 					nak.requestType = Protocol::ANS_NAK;
-					params.push_back(nak);
+					response.add_param(nak);
 				}
 
-				Message response(Protocol::ANS_DELETE_NG, params);
 				parser.send_message(conn, response);
 
 			} else if (cmd == Protocol::COM_LIST_ART) {
@@ -124,32 +107,19 @@ void MemoryServer::run() {
 
 				auto articles = database->list_articles(id);
 
-				vector<MessageParam> params;
+				Message response(Protocol::ANS_LIST_ART);
 
 				MessageParam ack;
 				ack.requestType = Protocol::ANS_ACK;
-				params.push_back(ack);
+				response.add_param(ack);
 
-				MessageParam p1;
-				p1.requestType = Protocol::PAR_NUM;
-				p1.numericValue = articles.size();
-				params.push_back(p1);
+				response.add_number_param(articles.size());
 
 				for (auto it = articles.begin(); it != articles.end(); it++) {
-
-					MessageParam id;
-					id.requestType = Protocol::PAR_NUM;
-					id.numericValue = (*it)->get_id();
-					params.push_back(id);
-
-					MessageParam title;
-					title.requestType = Protocol::PAR_STRING;
-					title.textValue = (*it)->get_title();
-					params.push_back(title);
-
+					response.add_number_param((*it)->get_id());
+					response.add_string_param((*it)->get_title());
 				}
 
-				Message response(Protocol::ANS_LIST_ART, params);
 				parser.send_message(conn, response);
 
 			} else if (cmd == Protocol::COM_CREATE_ART) {
@@ -162,13 +132,12 @@ void MemoryServer::run() {
 
 				database->create_article(id, title, author, text);
 
-				vector<MessageParam> params;
+				Message response(Protocol::ANS_CREATE_ART);
 
 				MessageParam ack;
 				ack.requestType = Protocol::ANS_ACK;
-				params.push_back(ack);
+				response.add_param(ack);
 
-				Message response(Protocol::ANS_CREATE_ART, params);
 				parser.send_message(conn, response);
 
 			} else if (cmd == Protocol::COM_DELETE_ART) {
@@ -179,20 +148,19 @@ void MemoryServer::run() {
 
 				bool success = database->delete_article(nid, aid);
 
-				vector<MessageParam> params;
+				Message response(Protocol::ANS_DELETE_ART);
 
 				if (success) {
 					MessageParam ack;
 					ack.requestType = Protocol::ANS_ACK;
-					params.push_back(ack);
+					response.add_param(ack);
 				} else {
 					MessageParam nak;
 					nak.requestType = Protocol::ANS_NAK;
 					nak.numericValue = Protocol::ERR_ART_DOES_NOT_EXIST;
-					params.push_back(nak);
+					response.add_param(nak);
 				}
 
-				Message response(Protocol::ANS_DELETE_ART, params);
 				parser.send_message(conn, response);
 
 			} else if (cmd == Protocol::COM_GET_ART) {
@@ -203,39 +171,22 @@ void MemoryServer::run() {
 
 				auto article = database->get_article(nid, aid);
 
-				vector<MessageParam> params;
+				Message response(Protocol::ANS_GET_ART);
 
 				MessageParam ack;
 				ack.requestType = Protocol::ANS_ACK;
-				params.push_back(ack);
+				response.add_param(ack);
 
-				MessageParam title;
-				ack.requestType = Protocol::PAR_STRING;
-				ack.textValue = article->get_title();
-				params.push_back(ack);
+				response.add_string_param(article->get_title());
+				response.add_string_param(article->get_author());
+				response.add_string_param(article->get_text());
 
-				MessageParam author;
-				ack.requestType = Protocol::PAR_STRING;
-				ack.textValue = article->get_author();
-				params.push_back(ack);
-
-				MessageParam text;
-				ack.requestType = Protocol::PAR_STRING;
-				ack.textValue = article->get_text();
-				params.push_back(ack);
-
-				Message response(Protocol::ANS_GET_ART, params);
 				parser.send_message(conn, response);
-				
+
 			} else {
 				cerr << "UNKNOWN COMMAND";
 				throw ConnectionClosedException();
 			}
-
-
-
-			// FIXME: Remove! added due to console not showing for some reason
-			//break;
 
 		} catch (ConnectionClosedException &) {
 			server.deregisterConnection(conn);

@@ -14,9 +14,9 @@ Message MessageHandler::parse_message(const std::shared_ptr<Connection> &connect
 
     std::cout << "COMMAND: " << command << endl;
 
-    vector<MessageParam> parameters;
-
     int type = connection->read();
+
+	Message message(command);
 
     // Continue untill the message is finnished
     while (type != Protocol::COM_END && type != Protocol::ANS_END) {
@@ -42,12 +42,12 @@ Message MessageHandler::parse_message(const std::shared_ptr<Connection> &connect
         cout << "PARAM: " << endl;
         cout << param.requestType << " " << param.numericValue << " " << param.textValue << endl;
 
-        parameters.push_back(param);
+        message.add_param(param);
 
         type = connection->read();
     }
 
-    return Message(command, parameters);
+    return message;
 }
 
 /**
