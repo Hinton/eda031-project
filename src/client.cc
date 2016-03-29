@@ -140,15 +140,8 @@ int main(int argc, char* argv[]) {
 			try {
 				art_nbr = stoi(args[0]);
 				success = db->delete_article(current_group, art_nbr);
-			} catch (invalid_argument& e) {
-				cmd_err("Article must be specified with a number");
+			} catch (exception& e) {
 				cmd_err(e.what());
-				/*
-			} catch (group_not_found& e) {
-				cmd_err("No such newsgroup");
-			} catch (article_not_found& e) {
-				cmd_err("No such article");
-				*/
 			}
 			if(success) {
 				cout << "Article successfully removed" << endl;
@@ -171,14 +164,7 @@ int main(int argc, char* argv[]) {
 				cout << art->get_title() << "\t From: " << art->get_author() << endl;
 					cout << art->get_text() << endl;
 			} catch (exception& e) {
-				cmd_err("Not an article number");
 				cmd_err(e.what());
-				/*
-			} catch (group_not_found& e) {
-				cmd_err("No such newsgroup");
-			} catch (article_not_found& e) {
-				cmd_err("No such article");
-				*/
 			}
 		} else if (cmd == "help") {
 			print_help(cout);

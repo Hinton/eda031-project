@@ -65,10 +65,6 @@ public:
 private:
 	const std::shared_ptr<Connection>& con;
 	MessageHandler msg_handler;
-	/**
-	 * Utility function to convert either a newsgroup name or newsgroup number to a group nbr
-	 * for sending to the server.
-	 */
 
 	void protocol_err(const std::string& sent, const std::string& expected, const int received) {
 		std::cerr << "Protocol error: Sent " << sent << ", expected " << expected << ", received " << received << std::endl;
