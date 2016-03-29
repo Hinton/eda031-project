@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
 	ServerCommunication server(con);
 	cout << "news>";
 
-	shared_ptr<RemoteDatabase> db = shared_ptr<RemoteDatabase> (new RemoteDatabase(shared_ptr<ServerCommunication>(&server)));
+	shared_ptr<RemoteDatabase> db = shared_ptr<RemoteDatabase> (new RemoteDatabase(&server));
 
 	string line;
 	int current_group = 0;

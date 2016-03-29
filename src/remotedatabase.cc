@@ -16,7 +16,7 @@ vector<shared_ptr<INewsgroup>> RemoteDatabase::list_newsgroups() {
 	vector<pair<int, string>> ngrps = scom->list_newsgroups();
 	vector<shared_ptr<INewsgroup>> to_return(ngrps.size());
 	transform (ngrps.begin(), ngrps.end(), to_return.begin(), [&](pair<int, string> grp) { 
-		return shared_ptr<RemoteNewsgroup>(new RemoteNewsgroup(scom, shared_ptr<RemoteDatabase>(this), grp.first, grp.second)); });
+		return shared_ptr<RemoteNewsgroup>(new RemoteNewsgroup(scom, this, grp.first, grp.second)); });
 	return to_return;
 }
 
@@ -26,7 +26,7 @@ shared_ptr<INewsgroup> RemoteDatabase::get_newsgroup(const int& id) {
 
 shared_ptr<INewsgroup> RemoteDatabase::create_newsgroup(const string &title) {
 	scom->create_newsgroup(title);
-	return shared_ptr<INewsgroup>(new RemoteNewsgroup(scom, shared_ptr<RemoteDatabase>(this), convert_group_id(title), title));
+	return shared_ptr<INewsgroup>(new RemoteNewsgroup(scom, this, convert_group_id(title), title));
 }
 
 bool RemoteDatabase::delete_newsgroup(const int &id) {

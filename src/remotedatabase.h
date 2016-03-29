@@ -10,7 +10,7 @@
 
 class RemoteDatabase : public IDatabase {
 public: 
-	RemoteDatabase(const std::shared_ptr<ServerCommunication>& scom) : scom(scom) {};
+	RemoteDatabase(ServerCommunication* scom) : scom(scom) {};
 	~RemoteDatabase() {};
 
 	std::vector<std::shared_ptr<INewsgroup>> list_newsgroups();
@@ -28,7 +28,7 @@ public:
 	
 	int convert_group_id(const std::string& id);
 private: 
-	std::shared_ptr<ServerCommunication> scom;
+	ServerCommunication *scom;
 	bool is_number(const std::string& s);
 };
 
