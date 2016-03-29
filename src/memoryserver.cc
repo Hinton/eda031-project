@@ -4,6 +4,7 @@
 #include "connectionclosedexception.h"
 #include "message.h"
 #include "inmemorydatabase.h"
+#include "database_exceptions.h"
 
 using namespace std;
 
@@ -63,21 +64,21 @@ void MemoryServer::run() {
 
 				auto p = message.getParameters();
 				string name = p[0].textValue;
-				database->create_newsgroup(name);
 
 				Message response(Protocol::ANS_CREATE_NG);
 
-				MessageParam ack;
-				ack.requestType = Protocol::ANS_ACK;
-				response.add_param(ack);
+				try {
+					database->create_newsgroup(name);
 
-				// TODO: Validate if the nwesgroup was created?
-				/*
-				MessageParam p1;
-				p1.requestType = Protocol::ANS_NAK;
-				p1.numericValue = Protocol::ERR_NG_ALREADY_EXISTS;
-				params.push_back(p1);
-				 */
+					MessageParam ack;
+					ack.requestType = Protocol::ANS_ACK;
+					response.add_param(ack);
+				} catch (const group_already_exists &e) {
+					MessageParam nak;
+					nak.requestType = Protocol::ANS_NAK;
+					nak.numericValue = Protocol::ERR_NG_ALREADY_EXISTS;
+					response.add_param(nak);
+				}
 
 				parser.send_message(conn, response);
 
@@ -85,17 +86,20 @@ void MemoryServer::run() {
 				auto p = message.getParameters();
 				int id = p[0].numericValue;
 
-				bool success = database->delete_newsgroup(id);
-
 				Message response(Protocol::ANS_DELETE_NG);
 
-				if (success) {
+				try {
+
+					bool success = database->delete_newsgroup(id);
+
 					MessageParam ack;
 					ack.requestType = Protocol::ANS_ACK;
 					response.add_param(ack);
-				} else {
+
+				} catch (const group_not_found &e) {
 					MessageParam nak;
 					nak.requestType = Protocol::ANS_NAK;
+					nak.numericValue = Protocol::ERR_NG_DOES_NOT_EXIST;
 					response.add_param(nak);
 				}
 
@@ -105,19 +109,26 @@ void MemoryServer::run() {
 				auto p = message.getParameters();
 				int id = p[0].numericValue;
 
-				auto articles = database->list_articles(id);
-
 				Message response(Protocol::ANS_LIST_ART);
 
-				MessageParam ack;
-				ack.requestType = Protocol::ANS_ACK;
-				response.add_param(ack);
+				try {
+					auto articles = database->list_articles(id);
 
-				response.add_number_param(articles.size());
+					MessageParam ack;
+					ack.requestType = Protocol::ANS_ACK;
+					response.add_param(ack);
 
-				for (auto it = articles.begin(); it != articles.end(); it++) {
-					response.add_number_param((*it)->get_id());
-					response.add_string_param((*it)->get_title());
+					response.add_number_param(articles.size());
+
+					for (auto it = articles.begin(); it != articles.end(); it++) {
+						response.add_number_param((*it)->get_id());
+						response.add_string_param((*it)->get_title());
+					}
+				} catch (const group_not_found &e) {
+					MessageParam nak;
+					nak.requestType = Protocol::ANS_NAK;
+					nak.numericValue = Protocol::ERR_NG_DOES_NOT_EXIST;
+					response.add_param(nak);
 				}
 
 				parser.send_message(conn, response);
@@ -130,13 +141,21 @@ void MemoryServer::run() {
 				string author = p[2].textValue;
 				string text = p[3].textValue;
 
-				database->create_article(id, title, author, text);
-
 				Message response(Protocol::ANS_CREATE_ART);
 
-				MessageParam ack;
-				ack.requestType = Protocol::ANS_ACK;
-				response.add_param(ack);
+				try {
+					database->create_article(id, title, author, text);
+
+					MessageParam ack;
+					ack.requestType = Protocol::ANS_ACK;
+					response.add_param(ack);
+
+				} catch (const group_not_found &e) {
+					MessageParam nak;
+					nak.requestType = Protocol::ANS_NAK;
+					nak.numericValue = Protocol::ERR_NG_DOES_NOT_EXIST;
+					response.add_param(nak);
+				}
 
 				parser.send_message(conn, response);
 
@@ -146,21 +165,25 @@ void MemoryServer::run() {
 				int nid = p[0].numericValue;
 				int aid = p[0].numericValue;
 
-				bool success = database->delete_article(nid, aid);
-
 				Message response(Protocol::ANS_DELETE_ART);
 
-				if (success) {
+				try {
+					bool success = database->delete_article(nid, aid);
+
 					MessageParam ack;
 					ack.requestType = Protocol::ANS_ACK;
 					response.add_param(ack);
-				} else {
+				} catch (const group_not_found &e) {
+					MessageParam nak;
+					nak.requestType = Protocol::ANS_NAK;
+					nak.numericValue = Protocol::ERR_NG_DOES_NOT_EXIST;
+					response.add_param(nak);
+				} catch (const article_not_found &e) {
 					MessageParam nak;
 					nak.requestType = Protocol::ANS_NAK;
 					nak.numericValue = Protocol::ERR_ART_DOES_NOT_EXIST;
 					response.add_param(nak);
 				}
-
 				parser.send_message(conn, response);
 
 			} else if (cmd == Protocol::COM_GET_ART) {
@@ -169,18 +192,30 @@ void MemoryServer::run() {
 				int nid = p[0].numericValue;
 				int aid = p[0].numericValue;
 
-				auto article = database->get_article(nid, aid);
-
 				Message response(Protocol::ANS_GET_ART);
 
-				MessageParam ack;
-				ack.requestType = Protocol::ANS_ACK;
-				response.add_param(ack);
+				try {
 
-				response.add_string_param(article->get_title());
-				response.add_string_param(article->get_author());
-				response.add_string_param(article->get_text());
+					auto article = database->get_article(nid, aid);
 
+					MessageParam ack;
+					ack.requestType = Protocol::ANS_ACK;
+					response.add_param(ack);
+
+					response.add_string_param(article->get_title());
+					response.add_string_param(article->get_author());
+					response.add_string_param(article->get_text());
+				} catch (const group_not_found &e) {
+					MessageParam nak;
+					nak.requestType = Protocol::ANS_NAK;
+					nak.numericValue = Protocol::ERR_NG_DOES_NOT_EXIST;
+					response.add_param(nak);
+				} catch (const article_not_found &e) {
+					MessageParam nak;
+					nak.requestType = Protocol::ANS_NAK;
+					nak.numericValue = Protocol::ERR_ART_DOES_NOT_EXIST;
+					response.add_param(nak);
+				}
 				parser.send_message(conn, response);
 
 			} else {
