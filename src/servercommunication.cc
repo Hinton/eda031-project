@@ -39,7 +39,7 @@ void ServerCommunication::create_newsgroup(const string& name) {
 
 	if (reply.getType() == Protocol::ANS_CREATE_NG) {
 		vector<MessageParam> reply_params = reply.getParameters();
-		if (reply_params[0].numericValue != Protocol::ANS_ACK) {
+		if (reply_params[0].requestType != Protocol::ANS_ACK) {
 			throw obj_already_exists();
 		}
 	} else {
@@ -56,7 +56,7 @@ bool ServerCommunication::delete_newsgroup(const int group_nbr) {
 
 	if (reply.getType() == Protocol::ANS_DELETE_NG) {
 		vector<MessageParam> reply_params = reply.getParameters();
-		success = reply_params[0].numericValue == Protocol::ANS_ACK;
+		success = reply_params[0].requestType == Protocol::ANS_ACK;
 	} else {
 		protocol_err("COM_DELETE_NG", "ANS_DELETE_NG", reply.getType());
 	}
@@ -72,7 +72,7 @@ vector<pair<int, string>> ServerCommunication::list_articles(const int group_nbr
 	vector<pair<int, string>> ret;
 	if (reply.getType() == Protocol::ANS_LIST_ART) {
 		vector<MessageParam> reply_params = reply.getParameters();
-		if (reply_params[0].numericValue == Protocol::ANS_ACK) {
+		if (reply_params[0].requestType == Protocol::ANS_ACK) {
 			for (int i = 1; i != reply_params[1].numericValue; i+=2) {
 				ret.push_back(make_pair(reply_params[i].numericValue, reply_params[i+1].textValue));
 			}
@@ -98,7 +98,7 @@ void ServerCommunication::create_article(const int group_nbr, const string& titl
 
 	if (reply.getType() == Protocol::ANS_CREATE_ART) {
 		vector<MessageParam> reply_params = reply.getParameters();
-		if (reply_params[0].numericValue != Protocol::ANS_ACK) {
+		if (reply_params[0].requestType != Protocol::ANS_ACK) {
 			throw group_not_found();
 		}
 	} else {
@@ -119,7 +119,7 @@ bool ServerCommunication::delete_article(const int group_nbr, const int art_nbr)
 
 	if (reply.getType() == Protocol::ANS_DELETE_ART) {
 		vector<MessageParam> reply_params = reply.getParameters();
-		if (reply_params[0].numericValue == Protocol::ANS_ACK) {
+		if (reply_params[0].requestType == Protocol::ANS_ACK) {
 			result = true;
 		} else if (reply_params[1].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
 			throw group_not_found();
@@ -146,11 +146,11 @@ vector<string> ServerCommunication::get_article(const int group_nbr, const int a
 
 	if (reply.getType() == Protocol::ANS_GET_ART) {
 		vector<MessageParam> reply_params = reply.getParameters();
-		if (reply_params[0].numericValue == Protocol::ANS_ACK) {
+		if (reply_params[0].requestType == Protocol::ANS_ACK) {
 			ret.push_back(reply_params[1].textValue); // title
 			ret.push_back(reply_params[2].textValue); // author
 			ret.push_back(reply_params[3].textValue); // text
-		} else if (reply_params[1].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
+		} else if (reply_params[1].requestType == Protocol::ERR_NG_DOES_NOT_EXIST) {
 			throw group_not_found();
 		} else {
 			throw article_not_found();

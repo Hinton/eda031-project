@@ -112,15 +112,15 @@ int main(int argc, char* argv[]) {
 				cout << newsgroup->get_id() <<  ". " << newsgroup->get_title() << endl;
 			}
 		} else if (cmd == "list" && args.size() == 1) { // list articles
-			current_group = db->convert_group_id(args[0]);
-			if (current_group != -1) {
+			try {
+				current_group = db->convert_group_id(args[0]);
 				for (auto &article : db->list_articles(current_group)) {
 					cout << article->get_id() <<  ". " << article->get_title() << endl;
 				}
-			} else {
-				cmd_err("No such newsgroup");
+				is_in_group = true;
+			} catch (group_not_found& e) {
+				cmd_err(e.what());
 			}
-			is_in_group = true;
 		} else if (cmd == "create" && args.size() == 1) { // create newsgroup
 			try {
 				auto res = db->create_newsgroup(args[0]);
