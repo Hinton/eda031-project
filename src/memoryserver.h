@@ -9,11 +9,11 @@
 
 class MemoryServer {
 public:
-    MemoryServer(int port, IDatabase *database);
+    MemoryServer(int port, std::shared_ptr<IDatabase> database);
 
     void run();
 private:
-    IDatabase *database;
+	std::shared_ptr<IDatabase> database;
     Server server;
     MessageHandler parser;
 };

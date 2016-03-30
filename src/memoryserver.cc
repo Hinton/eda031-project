@@ -18,7 +18,7 @@ void writeString(const shared_ptr<Connection> &conn, const string &s) {
 	conn->write('$');
 }
 
-MemoryServer::MemoryServer(int port, IDatabase *database) : server(port), database(database), parser() {
+MemoryServer::MemoryServer(int port, shared_ptr<IDatabase> database) : server(port), database(database), parser() {
 
 	if (!server.isReady()) {
 		cerr << "Server initialization error." << endl;
@@ -247,10 +247,10 @@ int main(int argc, char *argv[]) {
 
 	cout << "Starting server on port: " << port << endl;
 
-	InMemoryDatabase database;
+	shared_ptr<IDatabase> database = shared_ptr<IDatabase>(new InMemoryDatabase());
 
 	// Setup the server
-	MemoryServer memoryServer(1337, &database);
+	MemoryServer memoryServer(1337, database);
 	memoryServer.run();
 
 }
