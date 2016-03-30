@@ -19,7 +19,9 @@ OUT_DIR  += bin
 #CPPFLAGS =  -stdlib=libc++
 #CXXFLAGS += -stdlib=libc++
 
-all: libclientserver.a server client restructure
+all: libclientserver.a server restructure
+
+imdbtest: inmemorytest imdbtestrestructure
 
 # Create the library; ranlib is for Darwin (OS X) and maybe other systems.
 # Doesn't seem to do any damage on other systems.
@@ -32,10 +34,13 @@ server: memoryserver.o server.o connection.o messagehandler.o message.o inmemory
 
 client: connection.o servercommunication.o messagehandler.o message.o remotedatabase.o remotenewsgroup.o remotearticle.o
 
-database-test: inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o
+inmemorytest: inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o inmemorytest.o
 
 restructure: 
 	mkdir -p bin; rm bin/*; mv *.o bin/; mv *.a bin/; mv client bin/; mv server bin/;
+
+imdbtestrestructure:
+	mkdir -p bin; rm bin/*; mv *.o bin/; mv inmemorytest bin/;
 
 # Phony targets
 .PHONY: all clean restructure

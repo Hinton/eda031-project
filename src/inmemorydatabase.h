@@ -13,6 +13,8 @@ class InMemoryDatabase : public IDatabase {
 	using article_vec = std::vector<std::shared_ptr<IArticle>>;
 	using newsgroup_vec = std::vector<std::shared_ptr<INewsgroup>>;
 public:
+	InMemoryDatabase() : free_newsgroup_id(0) { }
+
 	newsgroup_vec list_newsgroups();
 
 	std::shared_ptr<INewsgroup> get_newsgroup(const int &id);
@@ -33,12 +35,12 @@ public:
 private:
 	int new_newsgroup_id() { return free_newsgroup_id++; }
 
+	int free_newsgroup_id;
+
 	using newsgroup_map = std::map<int, std::shared_ptr<InMemoryNewsgroup>>;
 	newsgroup_map newsgroups;
 
 	std::set<std::string> newsgroup_titles;
-
-	int free_newsgroup_id;
 };
 
 

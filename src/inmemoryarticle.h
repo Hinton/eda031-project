@@ -5,7 +5,6 @@
 #include "iarticle.h"
 
 class InMemoryArticle : public IArticle {
-	//friend bool articleCompare(std::shared_ptr<InMemoryArticle>, std::shared_ptr<InMemoryArticle>);
 public:
 	InMemoryArticle(const int &id, const std::string title, const std::string author, const std::string text);
 
@@ -25,7 +24,6 @@ public:
 	void set_text(const std::string &text) { this->text = text; }
 
 private:
-	const time_t timestamp;
 	const int id;
 	std::string title, author, text;
 };
