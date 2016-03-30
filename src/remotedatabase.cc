@@ -48,7 +48,7 @@ shared_ptr<IArticle> RemoteDatabase::get_article(const int &newsgroup_id, const 
 
 shared_ptr<IArticle> RemoteDatabase::create_article(const int &newsgroup_id,
 	const string &title, const string &author, const string &text) {	
-	create_article(newsgroup_id, title, author, text);
+	scom->create_article(newsgroup_id, title, author, text);
 	return shared_ptr<IArticle>(new RemoteArticle(scom, newsgroup_id, title, author, text));
 }
 
