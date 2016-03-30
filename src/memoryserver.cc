@@ -163,7 +163,7 @@ void MemoryServer::run() {
 
 				auto p = message.getParameters();
 				int nid = p[0].numericValue;
-				int aid = p[0].numericValue;
+				int aid = p[1].numericValue;
 
 				Message response(Protocol::ANS_DELETE_ART);
 
@@ -190,7 +190,7 @@ void MemoryServer::run() {
 
 				auto p = message.getParameters();
 				int nid = p[0].numericValue;
-				int aid = p[0].numericValue;
+				int aid = p[1].numericValue;
 
 				Message response(Protocol::ANS_GET_ART);
 

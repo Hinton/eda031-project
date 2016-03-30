@@ -98,81 +98,85 @@ int main(int argc, char* argv[]) {
 	string line;
 	int current_group = 0;
 	bool is_in_group = false; // Whether or not current_group can be used
-	while(getline(cin, line)) {
-		vector<string> words = get_words(line);
-		if (words.size() == 0) {
-			cmd_err("Unrecognized command. See help section");
-			cout << "news>";
-			continue;
-		}
-		string cmd = words[0];
-		vector<string> args(words.begin()+1, words.end());
-		if (cmd == "list" && args.size() == 0) { // list newsgroups
-			for (auto &newsgroup : db->list_newsgroups()) {
-				cout << newsgroup->get_id() <<  ". " << newsgroup->get_title() << endl;
+	try {
+		while(getline(cin, line)) {
+			vector<string> words = get_words(line);
+			if (words.size() == 0) {
+				cmd_err("Unrecognized command. See help section");
+				cout << "news>";
+				continue;
 			}
-		} else if (cmd == "list" && args.size() == 1) { // list articles
-			try {
-				current_group = db->convert_group_id(args[0]);
-				for (auto &article : db->list_articles(current_group)) {
-					cout << article->get_id() <<  ". " << article->get_title() << endl;
+			string cmd = words[0];
+			vector<string> args(words.begin()+1, words.end());
+				if (cmd == "list" && args.size() == 0) { // list newsgroups
+				for (auto &newsgroup : db->list_newsgroups()) {
+					cout << newsgroup->get_id() <<  ". " << newsgroup->get_title() << endl;
 				}
-				is_in_group = true;
-			} catch (group_not_found& e) {
-				cmd_err(e.what());
-			}
-		} else if (cmd == "create" && args.size() == 1) { // create newsgroup
-			try {
-				auto res = db->create_newsgroup(args[0]);
-				cout << "Group successfully created" << endl;
-				current_group = res->get_id();
-				is_in_group = true;
-			} catch (exception& e) {
-				cmd_err(e.what());
-			}
-		} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
+			} else if (cmd == "list" && args.size() == 1) { // list articles
+				try {
+					current_group = db->convert_group_id(args[0]);
+					for (auto &article : db->list_articles(current_group)) {
+						cout << article->get_id() <<  ". " << article->get_title() << endl;
+					}
+					is_in_group = true;
+				} catch (group_not_found& e) {
+					cmd_err(e.what());
+				}
+			} else if (cmd == "create" && args.size() == 1) { // create newsgroup
+				try {
+					auto res = db->create_newsgroup(args[0]);
+					cout << "Group successfully created" << endl;
+					current_group = res->get_id();
+					is_in_group = true;
+				} catch (exception& e) {
+					cmd_err(e.what());
+				}
+			} else if (cmd == "create" && args.size() == 3 && is_in_group) { // create newsarticle in current group
 
-			auto res = db->create_article(current_group, args[0], args[1], args[2]);
-			cout << "Article successfully created" << endl;
-		} else if (cmd == "delete_art" && args.size() == 1 && is_in_group) { // delete article in group
-			int art_nbr = 0;
-			bool success = false;
-			try {
-				art_nbr = stoi(args[0]);
-				success = db->delete_article(current_group, art_nbr);
-			} catch (exception& e) {
-				cmd_err(e.what());
-			}
-			if(success) {
-				cout << "Article successfully removed" << endl;
+				auto res = db->create_article(current_group, args[0], args[1], args[2]);
+				cout << "Article successfully created" << endl;
+			} else if (cmd == "delete_art" && args.size() == 1 && is_in_group) { // delete article in group
+				int art_nbr = 0;
+				bool success = false;
+				try {
+					art_nbr = stoi(args[0]);
+					success = db->delete_article(current_group, art_nbr);
+				} catch (exception& e) {
+					cmd_err(e.what());
+				}
+				if(success) {
+					cout << "Article successfully removed" << endl;
+				} else {
+					cmd_err("Article could not be removed");
+				}
+			} else if(cmd == "delete_grp" && args.size() == 1) { // delete newsgroup
+				int group_nbr = db->convert_group_id(args[0]);
+				bool success = db->delete_newsgroup(group_nbr);
+				if (success) {
+					cout << "Group successfully deleted" << endl;
+				} else {
+					cout << "Failed, no such group" << endl;
+				}
+			} else if (cmd == "read" && args.size() == 1 && is_in_group) { // read article in latest_group
+				int art_nbr = 0;
+				try {
+					art_nbr = stoi(args[0]);
+					auto art = db->get_article(current_group, art_nbr);
+					cout << art->get_title() << "\t From: " << art->get_author() << endl;
+						cout << art->get_text() << endl;
+				} catch (exception& e) {
+					cmd_err(e.what());
+				}
+			} else if (cmd == "help") {
+				print_help(cout);
+			} else if (cmd == "exit") {
+				return 0;
 			} else {
-				cmd_err("Article could not be removed");
+				cmd_err("Unrecognized command. See help section");
 			}
-		} else if(cmd == "delete_grp" && args.size() == 1) { // delete newsgroup
-			int group_nbr = db->convert_group_id(args[0]);
-			bool success = db->delete_newsgroup(group_nbr);
-			if (success) {
-				cout << "Group successfully deleted" << endl;
-			} else {
-				cout << "Failed, no such group" << endl;
-			}
-		} else if (cmd == "read" && args.size() == 1 && is_in_group) { // read article in latest_group
-			int art_nbr = 0;
-			try {
-				art_nbr = stoi(args[0]);
-				auto art = db->get_article(current_group, art_nbr);
-				cout << art->get_title() << "\t From: " << art->get_author() << endl;
-					cout << art->get_text() << endl;
-			} catch (exception& e) {
-				cmd_err(e.what());
-			}
-		} else if (cmd == "help") {
-			print_help(cout);
-		} else if (cmd == "exit") {
-			return 0;
-		} else {
-			cmd_err("Unrecognized command. See help section");
+			cout << "news>";
 		}
-		cout << "news>";
+	} catch (ConnectionClosedException& e) {
+		cmd_err("No connection to server, exiting.");
 	}
 }

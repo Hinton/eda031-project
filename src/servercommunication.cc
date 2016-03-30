@@ -2,10 +2,6 @@
 #include "protocol.h"
 #include "database_exceptions.h"
 
-#include <cctype> // isdigit
-#include <algorithm> // find_if
-
-
 using namespace std;
 
 
@@ -73,11 +69,7 @@ vector<pair<int, string>> ServerCommunication::list_articles(const int group_nbr
 	if (reply.getType() == Protocol::ANS_LIST_ART) {
 		vector<MessageParam> reply_params = reply.getParameters();
 		if (reply_params[0].requestType == Protocol::ANS_ACK) {
-			// TODO Bug here
-			// This for loop probably goes to far and accesses unnallocated memory
-			// Check protocol standard and server implementation to understand message
-			// structure
-			for (int i = 1; i <= reply_params[1].numericValue; i+=2) {
+			for (size_t i = 2; i < reply_params.size(); i+=2) {
 				ret.push_back(make_pair(reply_params[i].numericValue, reply_params[i+1].textValue));
 			}
 		} else {
@@ -125,7 +117,7 @@ bool ServerCommunication::delete_article(const int group_nbr, const int art_nbr)
 		vector<MessageParam> reply_params = reply.getParameters();
 		if (reply_params[0].requestType == Protocol::ANS_ACK) {
 			result = true;
-		} else if (reply_params[1].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
+		} else if (reply_params[0].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
 			throw group_not_found();
 		} else {
 			throw article_not_found();
@@ -154,7 +146,7 @@ vector<string> ServerCommunication::get_article(const int group_nbr, const int a
 			ret.push_back(reply_params[1].textValue); // title
 			ret.push_back(reply_params[2].textValue); // author
 			ret.push_back(reply_params[3].textValue); // text
-		} else if (reply_params[1].requestType == Protocol::ERR_NG_DOES_NOT_EXIST) {
+		} else if (reply_params[0].numericValue == Protocol::ERR_NG_DOES_NOT_EXIST) {
 			throw group_not_found();
 		} else {
 			throw article_not_found();
