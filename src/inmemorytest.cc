@@ -43,32 +43,38 @@ int main(int argc, char *argv[]) {
 	printAll(db);
 	*/
 
+	string OK = " -- OK!", FAILED = " -- FAILED!";
+	string test;
+
 	// Newsgroup get test: Existing newsgroup
+	test = "Newsgroup get test: Existing newsgroup";
 	try {
 		auto newsgroup = db.get_newsgroup(newsgroup1->get_id());
 		if (newsgroup == nullptr)
 			throw runtime_error("Returned newsgroup was null.");
-		cout << "Newsgroup get test: Existing newsgroup OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Newsgroup get test: Existing newsgroup FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Newsgroup get test: Non-existing newsgroup
+	test = "Newsgroup get test: Non-existing newsgroup";
 	try {
 		auto newsgroup = db.get_newsgroup(1337);
-		cout << "Newsgroup get test: Non-existing newsgroup FAILED!" << endl;
+		throw runtime_error("No exception thrown.");
 	}
 	catch (group_not_found &) {
-		cout << "Newsgroup get test: Non-existing newsgroup OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Newsgroup get test: Non-existing newsgroup FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Newsgroup list test
+	test = "Newsgroup list test";
 	try {
 		auto ng_vec = db.list_newsgroups();
 		if (ng_vec.size() != 2)
@@ -77,103 +83,111 @@ int main(int argc, char *argv[]) {
 			if (*it == nullptr)
 				throw runtime_error("Newsgroup pointer in vector was null.");
 		}
-		cout << "Newsgroup list test OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Newsgroup list test FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Newsgroup creation test: Existing newsgroup
+	test = "Newsgroup creation test: Existing newsgroup";
 	try {
 		db.create_newsgroup(newsgroup2->get_title());
-		cout << "Newsgroup creation test: Existing newsgroup FAILED!" << endl;
+		throw runtime_error("No exception thrown.");
 	}
 	catch (group_already_exists) {
-		cout << "Newsgroup creation test: Existing newsgroup OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Newsgroup creation test: Existing newsgroup FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Newsgroup deletion test: Non-existing newsgroup
+	test = "Newsgroup deletion test: Non-existing newsgroup";
 	try {
 		db.delete_newsgroup(1337);
-		cout << "Newsgroup deletion test: Non-existing newsgroup FAILED!" << endl;
+		throw runtime_error("No exception thrown.");
 	}
 	catch (group_not_found &) {
-		cout << "Newsgroup deletion test: Non-existing newsgroup OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Newsgroup deletion test: Non-existing newsgroup FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Newsgroup deletion test: Existing newsgroup
+	test = "Newsgroup deletion test: Existing newsgroup";
 	try {
 		db.delete_newsgroup(newsgroup2->get_id());
 		if (db.list_newsgroups().size() != 1)
 			throw runtime_error("Newsgroup was not properly deleted.");
-		cout << "Newsgroup deletion test: Existing newsgroup OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Newsgroup deletion test: Existing newsgroup FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what();
 	}
 
 	// Newsgroup get test: Non-existing newsgroup
+	test = "Newsgroup get test: Non-existing newsgroup";
 	try {
 		auto newsgroup = db.get_newsgroup(1337);
-		cout << "Newsgroup get test: Non-existing newsgroup FAILED!" << endl;
+		throw runtime_error("No exception thrown.");
 	}
 	catch (group_not_found &) {
-		cout << "Newsgroup get test: Non-existing newsgroup OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Newsgroup get test: Non-existing newsgroup FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Article get test: Existing newsgroup
+	test = "Article get test: Existing newsgroup";
 	try {
 		auto article = db.get_article(newsgroup1->get_id(), article1->get_id());
 		if (article == nullptr)
 			throw runtime_error("Returned article was null.");
-		cout << "Article get test: Existing newsgroup OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Article get test: Existing newsgroup FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Article get test: Non-existing newsgroup
+	test = "Article get test: Non-existing newsgroup";
 	try {
 		db.get_article(1337, article1->get_id());
-		cout << "Article get test: Non-existing newsgroup FAILED!" << endl;
+		throw runtime_error("No exception thrown.");
 	}
 	catch (group_not_found &) {
-		cout << "Article get test: Non-existing newsgroup OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Article get test: Non-existing newsgroup FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Article get test: Non-existing article
+	test = "Article get test: Non-existing article";
 	try {
 		db.get_article(newsgroup1->get_id(), 1337);
-		cout << "Article get test: Non-existing article FAILED!" << endl;
+		throw runtime_error("No exception thrown.");
 	}
 	catch (article_not_found &) {
-		cout << "Article get test: Non-existing article OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Article get test: Non-existing article FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Article list test
+	test = "Article list test";
 	try {
 		auto art_vec = db.list_articles(newsgroup1->get_id());
 		if (art_vec.size() != 2)
@@ -182,35 +196,37 @@ int main(int argc, char *argv[]) {
 			if (*it == nullptr)
 				throw runtime_error("Article pointer in vector was null.");
 		}
-		cout << "Article list test OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Article list test FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Article deletion test: Non-existing article
+	test = "Article deletion test: Non-existing article";
 	try {
 		db.delete_article(newsgroup1->get_id(), 1337);
-		cout << "Article deletion test: Non-existing article FAILED!" << endl;
+		throw runtime_error("No exception thrown.");
 	}
 	catch (article_not_found &e) {
-		cout << "Article deletion test: Non-existing article OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Article deletion test: Non-existing article FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
 	// Article deletion test: Existing article
+	test = "Article deletion test: Existing article";
 	try {
 		db.delete_article(newsgroup1->get_id(), article1->get_id());
 		if (db.list_articles(newsgroup1->get_id()).size() != 1)
 			throw runtime_error("Article was not properly deleted.");
-		cout << "Article deletion test: Existing article OK!" << endl;
+		cout << test << OK << endl;
 	}
 	catch (exception &e) {
-		cout << "Article deletion test: Existing article FAILED!" << endl;
+		cout << test << FAILED << endl;
 		cout << e.what() << endl;
 	}
 
