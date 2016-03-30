@@ -73,7 +73,11 @@ vector<pair<int, string>> ServerCommunication::list_articles(const int group_nbr
 	if (reply.getType() == Protocol::ANS_LIST_ART) {
 		vector<MessageParam> reply_params = reply.getParameters();
 		if (reply_params[0].requestType == Protocol::ANS_ACK) {
-			for (int i = 1; i != reply_params[1].numericValue; i+=2) {
+			// TODO Bug here
+			// This for loop probably goes to far and accesses unnallocated memory
+			// Check protocol standard and server implementation to understand message
+			// structure
+			for (int i = 1; i <= reply_params[1].numericValue; i+=2) {
 				ret.push_back(make_pair(reply_params[i].numericValue, reply_params[i+1].textValue));
 			}
 		} else {

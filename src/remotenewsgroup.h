@@ -11,7 +11,7 @@
 class RemoteNewsgroup : public INewsgroup {
 public:
 	RemoteNewsgroup(ServerCommunication *scom, RemoteDatabase *rdb, int id, std::string title) : scom(scom), rdb(rdb), id(id), title(title) {};
-	~RemoteNewsgroup() = default;
+//	~RemoteNewsgroup() = default;
 
 	int get_id();
 
