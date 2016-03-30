@@ -250,7 +250,7 @@ int main(int argc, char *argv[]) {
 	shared_ptr<IDatabase> database = shared_ptr<IDatabase>(new InMemoryDatabase());
 
 	// Setup the server
-	MemoryServer memoryServer(1337, database);
+	MemoryServer memoryServer(port, database);
 	memoryServer.run();
 
 }
