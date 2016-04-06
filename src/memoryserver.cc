@@ -3,7 +3,7 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
 #include "message.h"
-#include "inmemorydatabase.h"
+//#include "inmemorydatabase.h"
 #include "sqlitedatabase.h"
 #include "database_exceptions.h"
 

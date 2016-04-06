@@ -3,6 +3,7 @@
 
 #include <string>
 #include "iarticle.h"
+#include "../sqlite_src/sqlite3.h"
 
 class SqliteArticle : public IArticle {
 public:

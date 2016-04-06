@@ -35,7 +35,7 @@ libclientserver.a: connection.o server.o
 	ar rv libclientserver.a  connection.o server.o
 	ranlib libclientserver.a
 
-server: memoryserver.o server.o connection.o messagehandler.o message.o inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o sqlitedatabase.o sqlite3.o
+server: memoryserver.o server.o connection.o messagehandler.o message.o inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o sqlitedatabase.o sqlitenewsgroup.o sqlitearticle.o sqlite3.o
 
 client: connection.o servercommunication.o messagehandler.o message.o remotedatabase.o remotenewsgroup.o remotearticle.o
 

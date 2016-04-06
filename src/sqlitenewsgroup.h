@@ -3,13 +3,14 @@
 
 #include "inewsgroup.h"
 #include "iarticle.h"
+#include "../sqlite_src/sqlite3.h"
 
 class SqliteNewsgroup : public INewsgroup {
 	using article_vec = std::vector<std::shared_ptr<IArticle>>;
 public:
-	SqliteNewsgroup(sqlite3* db, const int &id, const std::string &title) : db(db) {};
+	SqliteNewsgroup(sqlite3 *db, const int &id) : db(db), id(id) {};
 
-	int get_id();
+	int get_id() { return id; };
 
 	std::string get_title();
 
@@ -26,6 +27,7 @@ public:
 
 private:
 	sqlite3* db;
+	int id;
 };
 
 #endif

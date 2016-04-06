@@ -1,15 +1,18 @@
 #include <memory>
 #include <exception>
 #include <string>
+#include <iostream>
+#include <sstream>
 #include "sqlitedatabase.h"
 #include "sqlitenewsgroup.h"
 #include "sqlitearticle.h"
 #include "../sqlite_src/sqlite3.h"
+#include "database_exceptions.h"
 
 using namespace std;
 
 SqliteDatabase::SqliteDatabase() {
-	bool need_to_create_tables = file_exists(DB_FILENAME);
+	bool need_to_create_tables = !file_exists(DB_FILENAME);
 
 	int res = sqlite3_open(
 		DB_FILENAME,   /* Database filename (UTF-8) */
@@ -21,7 +24,7 @@ SqliteDatabase::SqliteDatabase() {
 	}
 
 	if (need_to_create_tables) {
-		const char *statements[1];
+		const char *statements[2];
 		statements[0] = 
 			"CREATE TABLE newsgroups ("
 				"id INTEGER PRIMARY KEY, "
@@ -53,16 +56,55 @@ SqliteDatabase::SqliteDatabase() {
 	}
 }
 
-SqliteDatabase::newsgroup_vec SqliteDatabase::list_newsgroups() {
+SqliteDatabase::~SqliteDatabase() {
+	sqlite3_close(db);
+}
 
+int SqliteDatabase::last_insert_id() {
+	int id;
+	sqlite3_exec(db, "SELECT last_insert_rowid()", [](void* arg, int argc, char** argv, char** col_names) -> int {
+		*(int*)arg = *argv[0];
+		return 0;
+	}, &id, nullptr);
+	return id;
+}
+
+std::vector<std::shared_ptr<INewsgroup>> SqliteDatabase::list_newsgroups() {
+	std::vector<int> ids;
+	
+	sqlite3_exec(db, "SELECT id FROM newsgroups", [](void* arg, int argc, char** argv, char** col_names) -> int {
+		((std::vector<int> *)arg)->push_back(*argv[0]);
+		return 0;
+	}, &ids, nullptr);
+	
+	std::vector<std::shared_ptr<INewsgroup>> out;
+	for (int id : ids) {
+		out.emplace_back(new SqliteNewsgroup(db, id));
+	}
+	return out;
 }
 
 std::shared_ptr<INewsgroup> SqliteDatabase::get_newsgroup(const int &id) {
+	stringstream ss;
+	ss << "SELECT COUNT(*) FROM newsgroups WHERE id = " << id;
+	int count(0);
+	sqlite3_exec(db, ss.str().c_str(), [](void* arg, int argc, char** argv, char** col_names) -> int {
+		*(int*)arg = *argv[0];
+		return 0;
+	}, &count, nullptr);
 
+	if (count != 1) {
+		throw group_not_found(); 
+	}
+
+	return shared_ptr<INewsgroup>(new SqliteNewsgroup(db, id));
 }
 
 std::shared_ptr<INewsgroup> SqliteDatabase::create_newsgroup(const std::string &title) {
-
+	stringstream ss;
+	ss << "INSERT INTO newsgroups (title) VALUES (" << title << ")";
+	sqlite3_exec(db, ss.str().c_str(), nullptr, nullptr, nullptr);
+	return shared_ptr<INewsgroup>(new SqliteNewsgroup(db, last_insert_id()));
 }
 
 bool SqliteDatabase::delete_newsgroup(const int &id) {
