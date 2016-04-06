@@ -6,26 +6,24 @@
 
 using namespace std;
 
-void printNewsgroup(shared_ptr<InMemoryNewsgroup> newsgroup);
+void printNewsgroup(shared_ptr<INewsgroup> newsgroup);
 
-void printArticle(shared_ptr<InMemoryArticle> article);
+void printArticle(shared_ptr<IArticle> article);
 
-void printAll(InMemoryDatabase &db);
+void printAll(shared_ptr<IDatabase> db);
 
 int main(int argc, char *argv[]) {
-	// Setup
-	InMemoryDatabase db;
-	auto newsgroup1 = dynamic_pointer_cast<InMemoryNewsgroup>(db.create_newsgroup("Newsgroup 1 title"));
-	auto article1 = dynamic_pointer_cast<InMemoryArticle>(
-			db.create_article(newsgroup1->get_id(), "Awesome title 1", "Samme", "nope"));
-	auto article2 = dynamic_pointer_cast<InMemoryArticle>(
-			db.create_article(newsgroup1->get_id(), "Bad title 1", "Samme", "yep"));
+	// Choose database implementation
+	shared_ptr<IDatabase> db = shared_ptr<IDatabase>(new InMemoryDatabase());
 
-	auto newsgroup2 = dynamic_pointer_cast<InMemoryNewsgroup>(db.create_newsgroup("Newsgroup 2 title"));
-	auto article3 = dynamic_pointer_cast<InMemoryArticle>(
-			db.create_article(newsgroup2->get_id(), "Awesome title 2", "Samme", "nope"));
-	auto article4 = dynamic_pointer_cast<InMemoryArticle>(
-			db.create_article(newsgroup2->get_id(), "Bad title 2", "Samme", "yep"));
+	// Setup
+	auto newsgroup1 = db->create_newsgroup("Newsgroup 1 title");
+	auto article1 = db->create_article(newsgroup1->get_id(), "Awesome title 1", "Samme", "nope");
+	auto article2 = db->create_article(newsgroup1->get_id(), "Bad title 1", "Samme", "yep");
+
+	auto newsgroup2 = db->create_newsgroup("Newsgroup 2 title");
+	auto article3 = db->create_article(newsgroup2->get_id(), "Awesome title 2", "Samme", "nope");
+	auto article4 = db->create_article(newsgroup2->get_id(), "Bad title 2", "Samme", "yep");
 
 	/*
 	cout << "Normal printout:" << endl;
@@ -49,7 +47,7 @@ int main(int argc, char *argv[]) {
 	// Newsgroup get test: Existing newsgroup
 	test = "Newsgroup get test: Existing newsgroup";
 	try {
-		auto newsgroup = db.get_newsgroup(newsgroup1->get_id());
+		auto newsgroup = db->get_newsgroup(newsgroup1->get_id());
 		if (newsgroup == nullptr)
 			throw runtime_error("Returned newsgroup was null.");
 		cout << test << OK << endl;
@@ -62,7 +60,7 @@ int main(int argc, char *argv[]) {
 	// Newsgroup get test: Non-existing newsgroup
 	test = "Newsgroup get test: Non-existing newsgroup";
 	try {
-		auto newsgroup = db.get_newsgroup(1337);
+		auto newsgroup = db->get_newsgroup(1337);
 		throw runtime_error("No exception thrown.");
 	}
 	catch (group_not_found &) {
@@ -76,7 +74,7 @@ int main(int argc, char *argv[]) {
 	// Newsgroup list test
 	test = "Newsgroup list test";
 	try {
-		auto ng_vec = db.list_newsgroups();
+		auto ng_vec = db->list_newsgroups();
 		if (ng_vec.size() != 2)
 			throw runtime_error("Wrong size of newsgroup vector.");
 		for (auto it = ng_vec.begin(); it != ng_vec.end(); ++it) {
@@ -93,7 +91,7 @@ int main(int argc, char *argv[]) {
 	// Newsgroup creation test: Existing newsgroup
 	test = "Newsgroup creation test: Existing newsgroup";
 	try {
-		db.create_newsgroup(newsgroup2->get_title());
+		db->create_newsgroup(newsgroup2->get_title());
 		throw runtime_error("No exception thrown.");
 	}
 	catch (group_already_exists) {
@@ -107,7 +105,7 @@ int main(int argc, char *argv[]) {
 	// Newsgroup deletion test: Non-existing newsgroup
 	test = "Newsgroup deletion test: Non-existing newsgroup";
 	try {
-		db.delete_newsgroup(1337);
+		db->delete_newsgroup(1337);
 		throw runtime_error("No exception thrown.");
 	}
 	catch (group_not_found &) {
@@ -121,8 +119,8 @@ int main(int argc, char *argv[]) {
 	// Newsgroup deletion test: Existing newsgroup
 	test = "Newsgroup deletion test: Existing newsgroup";
 	try {
-		db.delete_newsgroup(newsgroup2->get_id());
-		if (db.list_newsgroups().size() != 1)
+		db->delete_newsgroup(newsgroup2->get_id());
+		if (db->list_newsgroups().size() != 1)
 			throw runtime_error("Newsgroup was not properly deleted.");
 		cout << test << OK << endl;
 	}
@@ -134,7 +132,7 @@ int main(int argc, char *argv[]) {
 	// Newsgroup get test: Non-existing newsgroup
 	test = "Newsgroup get test: Non-existing newsgroup";
 	try {
-		auto newsgroup = db.get_newsgroup(1337);
+		auto newsgroup = db->get_newsgroup(1337);
 		throw runtime_error("No exception thrown.");
 	}
 	catch (group_not_found &) {
@@ -148,7 +146,7 @@ int main(int argc, char *argv[]) {
 	// Article get test: Existing newsgroup
 	test = "Article get test: Existing newsgroup";
 	try {
-		auto article = db.get_article(newsgroup1->get_id(), article1->get_id());
+		auto article = db->get_article(newsgroup1->get_id(), article1->get_id());
 		if (article == nullptr)
 			throw runtime_error("Returned article was null.");
 		cout << test << OK << endl;
@@ -161,7 +159,7 @@ int main(int argc, char *argv[]) {
 	// Article get test: Non-existing newsgroup
 	test = "Article get test: Non-existing newsgroup";
 	try {
-		db.get_article(1337, article1->get_id());
+		db->get_article(1337, article1->get_id());
 		throw runtime_error("No exception thrown.");
 	}
 	catch (group_not_found &) {
@@ -175,7 +173,7 @@ int main(int argc, char *argv[]) {
 	// Article get test: Non-existing article
 	test = "Article get test: Non-existing article";
 	try {
-		db.get_article(newsgroup1->get_id(), 1337);
+		db->get_article(newsgroup1->get_id(), 1337);
 		throw runtime_error("No exception thrown.");
 	}
 	catch (article_not_found &) {
@@ -189,7 +187,7 @@ int main(int argc, char *argv[]) {
 	// Article list test
 	test = "Article list test";
 	try {
-		auto art_vec = db.list_articles(newsgroup1->get_id());
+		auto art_vec = db->list_articles(newsgroup1->get_id());
 		if (art_vec.size() != 2)
 			throw runtime_error("Wrong size of newsgroup vector.");
 		for (auto it = art_vec.begin(); it != art_vec.end(); ++it) {
@@ -206,7 +204,7 @@ int main(int argc, char *argv[]) {
 	// Article deletion test: Non-existing article
 	test = "Article deletion test: Non-existing article";
 	try {
-		db.delete_article(newsgroup1->get_id(), 1337);
+		db->delete_article(newsgroup1->get_id(), 1337);
 		throw runtime_error("No exception thrown.");
 	}
 	catch (article_not_found &e) {
@@ -220,8 +218,8 @@ int main(int argc, char *argv[]) {
 	// Article deletion test: Existing article
 	test = "Article deletion test: Existing article";
 	try {
-		db.delete_article(newsgroup1->get_id(), article1->get_id());
-		if (db.list_articles(newsgroup1->get_id()).size() != 1)
+		db->delete_article(newsgroup1->get_id(), article1->get_id());
+		if (db->list_articles(newsgroup1->get_id()).size() != 1)
 			throw runtime_error("Article was not properly deleted.");
 		cout << test << OK << endl;
 	}
@@ -236,14 +234,14 @@ int main(int argc, char *argv[]) {
 	*/
 }
 
-void printNewsgroup(shared_ptr<InMemoryNewsgroup> newsgroup) {
+void printNewsgroup(shared_ptr<INewsgroup> newsgroup) {
 	cout << "### Newsgroup ###" << endl;
 	cout << "ID: " << newsgroup->get_id() << endl;
 	cout << "Title: " << newsgroup->get_title() << endl;
 	cout << endl;
 }
 
-void printArticle(shared_ptr<InMemoryArticle> article) {
+void printArticle(shared_ptr<IArticle> article) {
 	cout << "--- Article ---" << endl;
 	cout << "ID: " << article->get_id() << endl;
 	cout << "Title: " << article->get_title() << endl;
@@ -252,12 +250,12 @@ void printArticle(shared_ptr<InMemoryArticle> article) {
 	cout << endl;
 }
 
-void printAll(InMemoryDatabase &db) {
-	auto ng_vec = db.list_newsgroups();
+void printAll(shared_ptr<IDatabase> db) {
+	auto ng_vec = db->list_newsgroups();
 	for (auto ng_it = ng_vec.begin(); ng_it != ng_vec.end(); ++ng_it) {
 		auto newsgroup = dynamic_pointer_cast<InMemoryNewsgroup>(*ng_it);
 		printNewsgroup(newsgroup);
-		auto art_vec = db.list_articles(newsgroup->get_id());
+		auto art_vec = db->list_articles(newsgroup->get_id());
 		for (auto art_it = art_vec.begin(); art_it != art_vec.end(); ++art_it) {
 			printArticle(dynamic_pointer_cast<InMemoryArticle>(*art_it));
 		}

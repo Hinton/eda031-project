@@ -26,7 +26,7 @@ sqlite:
 	cd ./sqlite_src; gcc -c sqlite3.c; mv sqlite3.o ../
 #	cd ./sqlite_src; ./configure; make;
 
-imdbtest: inmemorytest imdbtestrestructure
+test: dbtest dbtestrestructure
 
 # Create the library; ranlib is for Darwin (OS X) and maybe other systems.
 # Doesn't seem to do any damage on other systems.
@@ -39,13 +39,13 @@ server: memoryserver.o server.o connection.o messagehandler.o message.o inmemory
 
 client: connection.o servercommunication.o messagehandler.o message.o remotedatabase.o remotenewsgroup.o remotearticle.o
 
-inmemorytest: inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o inmemorytest.o
+dbtest: inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o dbtest.o
 
 restructure: 
 	mkdir -p bin; rm bin/*; mv *.o bin/; mv *.a bin/; mv client bin/; mv server bin/;
 
-imdbtestrestructure:
-	mkdir -p bin; rm bin/*; mv *.o bin/; mv inmemorytest bin/;
+dbtestrestructure:
+	mkdir -p bin; rm bin/*; mv *.o bin/; mv dbtest bin/;
 
 # Phony targets
 .PHONY: all clean restructure
