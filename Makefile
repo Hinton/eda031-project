@@ -19,7 +19,7 @@ OUT_DIR  += bin
 #CPPFLAGS =  -stdlib=libc++
 #CXXFLAGS += -stdlib=libc++
 
-all: libclientserver.a server restructure
+all: libclientserver.a server client restructure
 
 imdbtest: inmemorytest imdbtestrestructure
 
