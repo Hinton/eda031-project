@@ -1,7 +1,57 @@
 #include <memory>
+#include <exception>
+#include <string>
 #include "sqlitedatabase.h"
+#include "sqlitenewsgroup.h"
+#include "sqlitearticle.h"
+#include "../sqlite_src/sqlite3.h"
 
 using namespace std;
+
+SqliteDatabase::SqliteDatabase() {
+	bool need_to_create_tables = file_exists(DB_FILENAME);
+
+	int res = sqlite3_open(
+		DB_FILENAME,   /* Database filename (UTF-8) */
+		&db          /* OUT: SQLite db handle */
+	);
+
+	if (res != SQLITE_OK) {
+		throw runtime_error("Couldn't open database: " + string(sqlite3_errmsg(db)) + "\nGonna crash now, have a good day!");
+	}
+
+	if (need_to_create_tables) {
+		const char *statements[1];
+		statements[0] = 
+			"CREATE TABLE newsgroups ("
+				"id INTEGER PRIMARY KEY, "
+				"title TEXT"
+			");";
+
+		statements[1] = 
+			"CREATE TABLE articles ("
+				"id INTEGER PRIMARY KEY, "
+				"newsgroup_id INTEGER, "
+				"title TEXT, "
+				"author TEXT, "
+				"text TEXT, "
+				"FOREIGN KEY (newsgroup_id) REFERENCES newsgroups(id)"
+			");";
+		
+		for (const char **it = begin(statements); it != end(statements); ++it) {
+			const char *stmt = *it;
+			sqlite3_stmt *prepared_stmt;
+			res = sqlite3_prepare(db, stmt, 200, &prepared_stmt, nullptr);
+
+			res = sqlite3_step(prepared_stmt);
+			if (res != SQLITE_DONE) {
+				throw runtime_error("Couldn't execute query: " + string(sqlite3_errmsg(db)) + "\nGonna crash now, have a good day!");
+			}
+
+			sqlite3_finalize(prepared_stmt);
+		}
+	}
+}
 
 SqliteDatabase::newsgroup_vec SqliteDatabase::list_newsgroups() {
 

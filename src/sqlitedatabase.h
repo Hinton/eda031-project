@@ -1,7 +1,11 @@
 #ifndef SQLITEDATABASE_H
 #define SQLITEDATABASE_H
 
+#define DB_FILENAME "file:newsserver.db"
+
 #include <memory>
+#include <exception>
+#include <fstream>
 #include "../sqlite_src/sqlite3.h"
 #include "idatabase.h"
 #include "inewsgroup.h"
@@ -12,12 +16,7 @@ class SqliteDatabase : public IDatabase {
 	using article_vec = std::vector<std::shared_ptr<IArticle>>;
 	using newsgroup_vec = std::vector<std::shared_ptr<INewsgroup>>;
 public:
-	SqliteDatabase() { 
-		int res = sqlite3_open(
-			"sqlite_db.bin",   /* Database filename (UTF-8) */
-			&db          /* OUT: SQLite db handle */
-		);
-	}
+	SqliteDatabase();
 
 	newsgroup_vec list_newsgroups();
 
@@ -38,6 +37,18 @@ public:
 
 private:
 	sqlite3* db;
+
+	inline bool file_exists(const std::string& name) {
+		if (std::ifstream(name))
+		{
+			return false;
+		}
+		std::ofstream file(name);
+		if (!file)
+		{
+			return false;
+		}
+	};
 };
 
 
