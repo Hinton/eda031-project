@@ -12,12 +12,13 @@ CC  = g++
 CPPFLAGS =  -std=c++11
 CXXFLAGS =  -O2 -Wall -Wextra -pedantic-errors -Wold-style-cast
 CXXFLAGS += -std=c++11 
-CXXFLAGS += -g
+CXXFLAGS += -g -L
 VPATH		 += src:sqlite_src
 OUT_DIR  += bin
 #CXXFLAGS =  -stdlib=libc++
 #CPPFLAGS =  -stdlib=libc++
 #CXXFLAGS += -stdlib=libc++
+LDLIBS=-lpthread -ldl
 
 all: libclientserver.a sqlite server client restructure
 
