@@ -4,6 +4,7 @@
 #include "connectionclosedexception.h"
 #include "message.h"
 #include "inmemorydatabase.h"
+#include "sqlitedatabase.h"
 #include "database_exceptions.h"
 
 using namespace std;
@@ -247,7 +248,8 @@ int main(int argc, char *argv[]) {
 
 	cout << "Starting server on port: " << port << endl;
 
-	shared_ptr<IDatabase> database = shared_ptr<IDatabase>(new InMemoryDatabase());
+	//shared_ptr<IDatabase> database = shared_ptr<IDatabase>(new InMemoryDatabase());
+	shared_ptr<IDatabase> database = shared_ptr<IDatabase>(new SqliteDatabase());
 
 	// Setup the server
 	MemoryServer memoryServer(port, database);

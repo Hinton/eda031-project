@@ -11,15 +11,19 @@ CC  = g++
 # if you use clang++ and wish to use libc++ instead of libstdc++.
 CPPFLAGS =  -std=c++11
 CXXFLAGS =  -O2 -Wall -Wextra -pedantic-errors -Wold-style-cast
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++11 
 CXXFLAGS += -g
-VPATH		 += src
+VPATH		 += src:sqlite_src
 OUT_DIR  += bin
 #CXXFLAGS =  -stdlib=libc++
 #CPPFLAGS =  -stdlib=libc++
 #CXXFLAGS += -stdlib=libc++
 
-all: libclientserver.a server client restructure
+all: libclientserver.a sqlite server client restructure
+
+sqlite:
+	cd ./sqlite_src; gcc -c sqlite3.c; mv sqlite3.o ../
+#	cd ./sqlite_src; ./configure; make;
 
 imdbtest: inmemorytest imdbtestrestructure
 
@@ -30,7 +34,7 @@ libclientserver.a: connection.o server.o
 	ar rv libclientserver.a  connection.o server.o
 	ranlib libclientserver.a
 
-server: memoryserver.o server.o connection.o messagehandler.o message.o inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o
+server: memoryserver.o server.o connection.o messagehandler.o message.o inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o sqlitedatabase.o sqlite3.o
 
 client: connection.o servercommunication.o messagehandler.o message.o remotedatabase.o remotenewsgroup.o remotearticle.o
 
@@ -47,7 +51,7 @@ imdbtestrestructure:
 
 # Standard clean
 clean:
-	rm -f bin/*.o bin/libclientserver.a
+	rm -f *.o; rm -f bin/*.o bin/libclientserver.a
 
 # Generate dependencies in *.d files
 %.d: %.cc
