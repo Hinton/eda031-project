@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <exception>
+#include <iostream>
 #include <fstream>
 #include "../sqlite_src/sqlite3.h"
 #include "idatabase.h"
@@ -13,6 +14,9 @@
 //class SqliteNewsgroup;
 
 class SqliteDatabase : public IDatabase {
+	friend class SqliteNewsgroup;
+	friend class SqliteArticle;
+
 	using article_vec = std::vector<std::shared_ptr<IArticle>>;
 	using newsgroup_vec = std::vector<std::shared_ptr<INewsgroup>>;
 public:
@@ -35,6 +39,52 @@ public:
 											 const std::string &author, const std::string &text);
 
 	bool delete_article(const int &newsgroup_id, const int &article_id);
+
+	template <typename F>
+	void db_exec(const std::string &sql, F callback) {
+		std::cout << "[DATABASE] " << sql << std::endl;
+		char *errmsg = nullptr;
+		sqlite3_exec(db, sql.c_str(), [](void* arg, int argc, char** argv, char** col_names) -> int {
+			F callback = *(F*)arg;
+			SqliteLambdaOutput out;
+			out.argc = argc;
+			out.argv = argv;
+			out.col_names = col_names;
+
+			callback(out);
+
+			return 0;
+		}, &callback, &errmsg);
+
+		if (errmsg != nullptr) {
+			throw std::runtime_error(errmsg);
+		}
+	}
+
+	void db_exec(const std::string &sql) {
+		std::cout << "[DATABASE] " << sql << std::endl;
+		char *errmsg = nullptr;
+		int res = sqlite3_exec(db, sql.c_str(), [](void* arg, int argc, char** argv, char** col_names) -> int {
+			SqliteLambdaOutput out;
+			out.argc = argc;
+			out.argv = argv;
+			out.col_names = col_names;
+			return 0;
+		}, nullptr, &errmsg);
+
+		std::cout << "[DATABASE] Result code: " << res << std::endl;
+
+		if (errmsg != nullptr) {
+			throw std::runtime_error(errmsg);
+		}
+	}
+
+	struct SqliteLambdaOutput
+	{
+		int argc;
+		char** argv; 
+		char** col_names;
+	};
 
 private:
 	sqlite3* db;

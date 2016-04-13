@@ -2,13 +2,18 @@
 #define SQLITEARTICLE_H
 
 #include <string>
+#include "idatabase.h"
+#include "sqlitedatabase.h"
+#include "inewsgroup.h"
+#include "sqlitenewsgroup.h"
 #include "iarticle.h"
+#include "sqlitearticle.h"
 #include "../sqlite_src/sqlite3.h"
 
 class SqliteArticle : public IArticle {
 public:
-	SqliteArticle(sqlite3* db, const int &id, const std::string title, const std::string author, const std::string text)
-		: db(db) {};
+	SqliteArticle(SqliteDatabase* db, const int &id)
+		: db(db), id(id) {};
 
 	int get_id();
 
@@ -25,7 +30,11 @@ public:
 	void set_text(const std::string &text);
 
 private:
-	sqlite3* db;
+	SqliteDatabase* db;
+	int id;
+
+	std::string get_column(std::string column);
+	void set_column(std::string column, std::string value);
 };
 
 #endif

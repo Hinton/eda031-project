@@ -28,7 +28,8 @@ SqliteDatabase::SqliteDatabase() {
 		statements[0] = 
 			"CREATE TABLE newsgroups ("
 				"id INTEGER PRIMARY KEY, "
-				"title TEXT"
+				"title TEXT, "
+				"CONSTRAINT unq_title UNIQUE (title)"
 			");";
 
 		statements[1] = 
@@ -62,68 +63,73 @@ SqliteDatabase::~SqliteDatabase() {
 
 int SqliteDatabase::last_insert_id() {
 	int id;
-	sqlite3_exec(db, "SELECT last_insert_rowid()", [](void* arg, int argc, char** argv, char** col_names) -> int {
-		*(int*)arg = *argv[0];
-		return 0;
-	}, &id, nullptr);
+	db_exec("SELECT last_insert_rowid()", [&](SqliteLambdaOutput &out) {
+		id = atoi(out.argv[0]);
+	});
 	return id;
 }
 
-std::vector<std::shared_ptr<INewsgroup>> SqliteDatabase::list_newsgroups() {
-	std::vector<int> ids;
-	
-	sqlite3_exec(db, "SELECT id FROM newsgroups", [](void* arg, int argc, char** argv, char** col_names) -> int {
-		((std::vector<int> *)arg)->push_back(*argv[0]);
-		return 0;
-	}, &ids, nullptr);
-	
-	std::vector<std::shared_ptr<INewsgroup>> out;
-	for (int id : ids) {
-		out.emplace_back(new SqliteNewsgroup(db, id));
-	}
-	return out;
+vector<shared_ptr<INewsgroup>> SqliteDatabase::list_newsgroups() {
+	vector<shared_ptr<INewsgroup>> to_return;
+
+	db_exec("SELECT id FROM newsgroups", [&](SqliteLambdaOutput &out) {
+		to_return.push_back(shared_ptr<INewsgroup>(new SqliteNewsgroup(this, atoi(out.argv[0]))));
+	});
+
+	return to_return;
 }
 
-std::shared_ptr<INewsgroup> SqliteDatabase::get_newsgroup(const int &id) {
+shared_ptr<INewsgroup> SqliteDatabase::get_newsgroup(const int &id) {
 	stringstream ss;
 	ss << "SELECT COUNT(*) FROM newsgroups WHERE id = " << id;
 	int count(0);
-	sqlite3_exec(db, ss.str().c_str(), [](void* arg, int argc, char** argv, char** col_names) -> int {
-		*(int*)arg = *argv[0];
-		return 0;
-	}, &count, nullptr);
+	db_exec(ss.str(), [&](SqliteLambdaOutput &out) {
+		count = atoi(out.argv[0]);
+	});
 
 	if (count != 1) {
 		throw group_not_found(); 
 	}
 
-	return shared_ptr<INewsgroup>(new SqliteNewsgroup(db, id));
+	return shared_ptr<INewsgroup>(new SqliteNewsgroup(this, id));
 }
 
-std::shared_ptr<INewsgroup> SqliteDatabase::create_newsgroup(const std::string &title) {
+shared_ptr<INewsgroup> SqliteDatabase::create_newsgroup(const string &title) {
 	stringstream ss;
-	ss << "INSERT INTO newsgroups (title) VALUES (" << title << ")";
-	sqlite3_exec(db, ss.str().c_str(), nullptr, nullptr, nullptr);
-	return shared_ptr<INewsgroup>(new SqliteNewsgroup(db, last_insert_id()));
+	ss << "INSERT INTO newsgroups (title) VALUES ('" << title << "')";
+	try {
+		db_exec(ss.str());
+	} catch (runtime_error err) {
+		if (string(err.what()).find("tjosan")) {
+
+		} else {
+			throw err;
+		}
+	}
+
+	return shared_ptr<INewsgroup>(new SqliteNewsgroup(this, last_insert_id()));
 }
 
 bool SqliteDatabase::delete_newsgroup(const int &id) {
-
+	get_newsgroup(id);
+	stringstream ss;
+	ss << "DELETE FROM newsgroups WHERE id = " << id;
+	db_exec(ss.str());
 }
 
 SqliteDatabase::article_vec SqliteDatabase::list_articles(const int &newsgroup_id) {
-
+	return get_newsgroup(newsgroup_id)->list_articles();
 }
 
-std::shared_ptr<IArticle> SqliteDatabase::get_article(const int &newsgroup_id, const int &article_id) {
-
+shared_ptr<IArticle> SqliteDatabase::get_article(const int &newsgroup_id, const int &article_id) {
+	return get_newsgroup(newsgroup_id)->get_article(article_id);
 }
 
-std::shared_ptr<IArticle> SqliteDatabase::create_article(const int &newsgroup_id, const std::string &title,
-										 const std::string &author, const std::string &text) {
-
+shared_ptr<IArticle> SqliteDatabase::create_article(const int &newsgroup_id, const string &title,
+										 const string &author, const string &text) {
+	return get_newsgroup(newsgroup_id)->create_article(title, author, text);
 } 
 
 bool SqliteDatabase::delete_article(const int &newsgroup_id, const int &article_id) {
-
+	return get_newsgroup(newsgroup_id)->remove_article(article_id);
 }

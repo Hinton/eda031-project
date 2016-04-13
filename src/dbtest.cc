@@ -3,6 +3,9 @@
 #include "inmemorydatabase.h"
 #include "inmemorynewsgroup.h"
 #include "inmemoryarticle.h"
+#include "sqlitedatabase.h"
+#include "sqlitenewsgroup.h"
+#include "sqlitearticle.h"
 
 using namespace std;
 
@@ -14,7 +17,8 @@ void printAll(shared_ptr<IDatabase> db);
 
 int main(int argc, char *argv[]) {
 	// Choose database implementation
-	shared_ptr<IDatabase> db = shared_ptr<IDatabase>(new InMemoryDatabase());
+	//shared_ptr<IDatabase> db = shared_ptr<IDatabase>(new InMemoryDatabase());
+	shared_ptr<IDatabase> db = shared_ptr<IDatabase>(new SqliteDatabase());
 
 	// Setup
 	auto newsgroup1 = db->create_newsgroup("Newsgroup 1 title");
@@ -126,7 +130,7 @@ int main(int argc, char *argv[]) {
 	}
 	catch (exception &e) {
 		cout << test << FAILED << endl;
-		cout << e.what();
+		cout << e.what() << endl;
 	}
 
 	// Newsgroup get test: Non-existing newsgroup

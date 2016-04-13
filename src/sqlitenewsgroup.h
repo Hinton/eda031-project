@@ -1,14 +1,18 @@
 #ifndef SQLITENEWSGROUP_H
 #define SQLITENEWSGROUP_H
 
+#include "idatabase.h"
+#include "sqlitedatabase.h"
 #include "inewsgroup.h"
+#include "sqlitenewsgroup.h"
 #include "iarticle.h"
+#include "sqlitearticle.h"
 #include "../sqlite_src/sqlite3.h"
 
 class SqliteNewsgroup : public INewsgroup {
 	using article_vec = std::vector<std::shared_ptr<IArticle>>;
 public:
-	SqliteNewsgroup(sqlite3 *db, const int &id) : db(db), id(id) {};
+	SqliteNewsgroup(SqliteDatabase *db, const int &id) : db(db), id(id) {};
 
 	int get_id() { return id; };
 
@@ -26,7 +30,7 @@ public:
 	bool remove_article(const int &id);
 
 private:
-	sqlite3* db;
+	SqliteDatabase *db;
 	int id;
 };
 
