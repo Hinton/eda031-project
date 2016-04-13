@@ -35,7 +35,7 @@ std::shared_ptr<IArticle> SqliteNewsgroup::create_article(const std::string &tit
 
 std::shared_ptr<IArticle> SqliteNewsgroup::get_article(const int &article_id) {
 	stringstream ss;
-	ss << "SELECT COUNT(*) FROM articles WHERE id = " << article_id;
+	ss << "SELECT COUNT(*) FROM articles WHERE id = " << article_id << " AND newsgroup_id = " << id;
 	int count(0);
 	db->db_exec(ss.str(), [&](SqliteDatabase::SqliteLambdaOutput &out) {
 		count = atoi(out.argv[0]);
@@ -61,7 +61,7 @@ std::vector<std::shared_ptr<IArticle>> SqliteNewsgroup::list_articles() {
 }
 
 bool SqliteNewsgroup::remove_article(const int &article_id) {
-	get_article(id);
+	get_article(article_id);
 	stringstream ss;
 	ss << "DELETE FROM articles WHERE id = " << article_id << " AND newsgroup_id = " << id;
 	db->db_exec(ss.str());

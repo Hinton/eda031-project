@@ -100,8 +100,8 @@ shared_ptr<INewsgroup> SqliteDatabase::create_newsgroup(const string &title) {
 	try {
 		db_exec(ss.str());
 	} catch (runtime_error err) {
-		if (string(err.what()).find("tjosan")) {
-
+		if (string(err.what()).find("UNIQUE constraint failed") != std::string::npos) {
+			throw group_already_exists();
 		} else {
 			throw err;
 		}
