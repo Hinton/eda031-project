@@ -33,3 +33,6 @@ CMakeLists.txt
 .idea
 server
 client.dSYM
+
+# Database
+*.db
