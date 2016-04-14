@@ -65,4 +65,5 @@ bool SqliteNewsgroup::remove_article(const int &article_id) {
 	stringstream ss;
 	ss << "DELETE FROM articles WHERE id = " << article_id << " AND newsgroup_id = " << id;
 	db->db_exec(ss.str());
+	return true;
 }
