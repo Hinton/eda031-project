@@ -13,8 +13,8 @@ public:
 
     void run();
 private:
-	std::shared_ptr<IDatabase> database;
     Server server;
+	std::shared_ptr<IDatabase> database;
     MessageHandler parser;
 };
 

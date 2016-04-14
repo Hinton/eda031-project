@@ -84,7 +84,7 @@ void MemoryServer::run() {
 
 				try {
 
-					bool success = database->delete_newsgroup(id);
+					database->delete_newsgroup(id);
 
 					MessageParam ack;
 					ack.requestType = Protocol::ANS_ACK;
@@ -162,7 +162,7 @@ void MemoryServer::run() {
 				Message response(Protocol::ANS_DELETE_ART);
 
 				try {
-					bool success = database->delete_article(nid, aid);
+					database->delete_article(nid, aid);
 
 					MessageParam ack;
 					ack.requestType = Protocol::ANS_ACK;
