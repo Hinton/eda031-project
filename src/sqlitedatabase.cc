@@ -115,6 +115,7 @@ bool SqliteDatabase::delete_newsgroup(const int &id) {
 	stringstream ss;
 	ss << "DELETE FROM newsgroups WHERE id = " << id;
 	db_exec(ss.str());
+	return true;
 }
 
 SqliteDatabase::article_vec SqliteDatabase::list_articles(const int &newsgroup_id) {
