@@ -28,8 +28,6 @@ void MemoryServer::run() {
 	while (true) {
 		auto conn = server.waitForActivity();
 
-		cout << "yey" << endl;
-
 		// Setup the connection.
 		if (conn == nullptr) {
 			conn = make_shared<Connection>();
@@ -40,7 +38,6 @@ void MemoryServer::run() {
 		try {
 
 			Message message = parser.parse_message(conn);
-			cout << "123";
 
 			int cmd = message.getType();
 			if (cmd == Protocol::COM_LIST_NG) {
