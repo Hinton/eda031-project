@@ -12,7 +12,7 @@ Message MessageHandler::parse_message(const std::shared_ptr<Connection> &connect
     // Get the command;
     int command = connection->read();
 
-    std::cout << "COMMAND: " << command << endl;
+    //std::cout << "COMMAND: " << command << endl;
 
     int type = connection->read();
 
@@ -21,7 +21,7 @@ Message MessageHandler::parse_message(const std::shared_ptr<Connection> &connect
     // Continue untill the message is finnished
     while (type != Protocol::COM_END && type != Protocol::ANS_END) {
 
-        cout << "TYPE: " << type << endl;
+        //cout << "TYPE: " << type << endl;
 
         MessageParam param;
         param.requestType = type;
@@ -39,8 +39,8 @@ Message MessageHandler::parse_message(const std::shared_ptr<Connection> &connect
             cerr << "UNKNOWN PARAMETER TYPE " << param.requestType << endl;
         }
 
-        cout << "PARAM: " << endl;
-        cout << param.requestType << " " << param.numericValue << " " << param.textValue << endl;
+        //cout << "PARAM: " << endl;
+        //cout << param.requestType << " " << param.numericValue << " " << param.textValue << endl;
 
         message.add_param(param);
 

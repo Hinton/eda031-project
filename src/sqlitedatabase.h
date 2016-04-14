@@ -42,7 +42,7 @@ public:
 
 	template <typename F>
 	void db_exec(const std::string &sql, F callback) {
-		//std::cout << "[DATABASE] " << sql << std::endl;
+		std::cout << "[DATABASE] " << sql << std::endl;
 		char *errmsg = nullptr;
 		int res = sqlite3_exec(db, sql.c_str(), [](void* arg, int argc, char** argv, char** col_names) -> int {
 			F callback = *(F*)arg;
@@ -66,7 +66,7 @@ public:
 	}
 
 	void db_exec(const std::string &sql) {
-		//std::cout << "[DATABASE] " << sql << std::endl;
+		std::cout << "[DATABASE] " << sql << std::endl;
 		char *errmsg = nullptr;
 		int res = sqlite3_exec(db, sql.c_str(), [](void* arg, int argc, char** argv, char** col_names) -> int {
 			SqliteLambdaOutput out;

@@ -45,7 +45,7 @@ std::shared_ptr<IArticle> SqliteNewsgroup::get_article(const int &article_id) {
 		throw article_not_found(); 
 	}
 
-	return shared_ptr<IArticle>(new SqliteArticle(db, id));
+	return shared_ptr<IArticle>(new SqliteArticle(db, article_id));
 }
 
 std::vector<std::shared_ptr<IArticle>> SqliteNewsgroup::list_articles() {

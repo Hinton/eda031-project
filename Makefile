@@ -20,7 +20,7 @@ OUT_DIR  += bin
 #CXXFLAGS += -stdlib=libc++
 LDLIBS=-lpthread -ldl
 
-all: libclientserver.a sqlite server client restructure
+all: libclientserver.a sqlite memoryserver sqlserver client restructure
 
 sqlite:
 	cd ./sqlite_src; gcc -c sqlite3.c; mv sqlite3.o ../
@@ -35,14 +35,15 @@ libclientserver.a: connection.o server.o
 	ar rv libclientserver.a  connection.o server.o
 	ranlib libclientserver.a
 
-server: memoryserver.o server.o connection.o messagehandler.o message.o inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o sqlitedatabase.o sqlitenewsgroup.o sqlitearticle.o sqlite3.o
+memoryserver: memoryserver.o newsserver.o  connection.o server.o messagehandler.o message.o inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o
+sqlserver: sqlserver.o newsserver.o server.o connection.o messagehandler.o message.o sqlitedatabase.o sqlitenewsgroup.o sqlitearticle.o sqlite3.o
 
 client: connection.o servercommunication.o messagehandler.o message.o remotedatabase.o remotenewsgroup.o remotearticle.o
 
-dbtest: inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o sqlitearticle.o sqlitenewsgroup.o sqlitedatabase.o dbtest.o sqlite3.o
+# dbtest: inmemoryarticle.o inmemorynewsgroup.o inmemorydatabase.o sqlitearticle.o sqlitenewsgroup.o sqlitedatabase.o dbtest.o sqlite3.o
 
 restructure: 
-	mkdir -p bin; rm bin/*; mv *.o bin/; mv *.a bin/; mv client bin/; mv server bin/;
+	mkdir -p bin; rm bin/*; mv *.o bin/; mv *.a bin/; mv client bin/; mv memoryserver bin/; mv sqlserver bin/;
 
 dbtestrestructure:
 	mkdir -p bin; rm bin/*; mv *.o bin/; mv *.a bin/; mv dbtest bin/;
