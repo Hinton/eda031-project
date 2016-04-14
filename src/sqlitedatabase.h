@@ -68,11 +68,7 @@ public:
 	void db_exec(const std::string &sql) {
 		//std::cout << "[DATABASE] " << sql << std::endl;
 		char *errmsg = nullptr;
-		int res = sqlite3_exec(db, sql.c_str(), [](void* arg, int argc, char** argv, char** col_names) -> int {
-			SqliteLambdaOutput out;
-			out.argc = argc;
-			out.argv = argv;
-			out.col_names = col_names;
+		int res = sqlite3_exec(db, sql.c_str(), [](void*, int, char**, char**) -> int {
 			return 0;
 		}, nullptr, &errmsg);
 
