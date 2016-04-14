@@ -45,7 +45,7 @@ public:
 		//std::cout << "[DATABASE] " << sql << std::endl;
 		char *errmsg = nullptr;
 		int res = sqlite3_exec(db, sql.c_str(), [](void* arg, int argc, char** argv, char** col_names) -> int {
-			F callback = *(F*)arg;
+			F callback = *static_cast<F*>(arg);
 			SqliteLambdaOutput out;
 			out.argc = argc;
 			out.argv = argv;
