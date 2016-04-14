@@ -17,11 +17,11 @@ string RemoteNewsgroup::get_title() {
 	return title;
 }
 
-void RemoteNewsgroup::set_title(const std::string &title) {
+void RemoteNewsgroup::set_title(const std::string &) {
 	throw func_not_supported();
 }
 
-std::shared_ptr<IArticle> RemoteNewsgroup::get_article(const int &id) {
+std::shared_ptr<IArticle> RemoteNewsgroup::get_article(const int &) {
 	throw func_not_supported();
 }
 

@@ -20,7 +20,7 @@ vector<shared_ptr<INewsgroup>> RemoteDatabase::list_newsgroups() {
 	return to_return;
 }
 
-shared_ptr<INewsgroup> RemoteDatabase::get_newsgroup(const int& id) {
+shared_ptr<INewsgroup> RemoteDatabase::get_newsgroup(const int&) {
 	throw func_not_supported();
 }
 
